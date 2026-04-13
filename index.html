@@ -62,13 +62,13 @@ const gsRead = async (sheet) => {
 
 const gsWrite = async (sheet, records) => {
   try {
-    if (!records || records.length === 0) {
-      await fetch(GS_URL, { method:"POST", body: JSON.stringify({ action:"write", sheet, data:[] }) });
-      return;
+    let data = [];
+    if (records && records.length > 0) {
+      const headers = Object.keys(records[0]);
+      data = [headers, ...records.map(r => headers.map(h => r[h] ?? ""))];
     }
-    const headers = Object.keys(records[0]);
-    const data = [headers, ...records.map(r => headers.map(h => r[h] ?? ""))];
-    await fetch(GS_URL, { method:"POST", body: JSON.stringify({ action:"write", sheet, data }) });
+    const encoded = encodeURIComponent(JSON.stringify(data));
+    await fetch(`${GS_URL}?action=write&sheet=${sheet}&data=${encoded}`);
   } catch(e) { console.error("GS write error:", e); }
 };
 
