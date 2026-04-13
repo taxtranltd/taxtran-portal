@@ -211,10 +211,10 @@ function AdminCalendar({leaveApps,officeFilter}) {
       </div>
       <Card style={{padding:0,overflow:"hidden",marginBottom:selected?12:0}}>
         <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",borderBottom:`1px solid ${C.border}`}}>
-          {["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(d=><div key={d} style={{padding:"8px 4px",textAlign:"center",fontSize:11,fontWeight:700,color:C.muted,letterSpacing:0.5}}>{d}</div>)}
+          {["S","M","T","W","T","F","S"].map((d,i)=><div key={i} style={{padding:"6px 2px",textAlign:"center",fontSize:11,fontWeight:700,color:C.muted,letterSpacing:0.5}}>{d}</div>)}
         </div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)"}}>
-          {Array.from({length:firstDay}).map((_,i)=><div key={`e${i}`} style={{borderRight:`1px solid ${C.border}`,borderBottom:`1px solid ${C.border}`,minHeight:60}}/>)}
+          {Array.from({length:firstDay}).map((_,i)=><div key={`e${i}`} style={{borderRight:`1px solid ${C.border}`,borderBottom:`1px solid ${C.border}`,minHeight:44}}/>)}
           {Array.from({length:daysInMonth}).map((_,i)=>{
             const day=i+1,ds=`${calMonth}-${String(day).padStart(2,"0")}`;
             const {holidays,leaves}=getDayData(ds);
@@ -224,12 +224,12 @@ function AdminCalendar({leaveApps,officeFilter}) {
             const tipStyle=col<=1?{left:0,transform:"none"}:col>=5?{right:0,left:"auto",transform:"none"}:{left:"50%",transform:"translateX(-50%)"};
             return (
               <div key={day} onClick={()=>setSelected(isSel?null:ds)} onMouseEnter={()=>setHovered(ds)} onMouseLeave={()=>setHovered(null)}
-                style={{borderRight:`1px solid ${C.border}`,borderBottom:`1px solid ${C.border}`,minHeight:60,padding:"5px 6px",cursor:"pointer",background:isSel?C.subtle:C.surface,position:"relative"}}>
-                <div style={{fontSize:12,fontWeight:isToday?800:500,color:isToday?"#fff":C.text,background:isToday?C.accent:"transparent",borderRadius:"50%",width:22,height:22,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:3}}>{day}</div>
-                <div style={{display:"flex",flexWrap:"wrap",gap:2}}>
-                  {holidays.map((h,idx)=><div key={`h${idx}`} style={{width:7,height:7,borderRadius:"50%",background:HOL_COLORS[h.office]||"#888",opacity:0.65}}/>)}
-                  {approved.map((l,idx)=><div key={`a${idx}`} style={{width:7,height:7,borderRadius:2,background:OFF_COLORS[l.office]||"#888"}}/>)}
-                  {pending.map((l,idx)=><div key={`p${idx}`} style={{width:7,height:7,borderRadius:2,background:"transparent",border:`1.5px solid ${OFF_COLORS[l.office]||"#888"}`}}/>)}
+                style={{borderRight:`1px solid ${C.border}`,borderBottom:`1px solid ${C.border}`,minHeight:44,padding:"3px 4px",cursor:"pointer",background:isSel?C.subtle:C.surface,position:"relative"}}>
+                <div style={{fontSize:11,fontWeight:isToday?800:500,color:isToday?"#fff":C.text,background:isToday?C.accent:"transparent",borderRadius:"50%",width:20,height:20,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:2}}>{day}</div>
+                <div style={{display:"flex",flexWrap:"wrap",gap:1}}>
+                  {holidays.map((h,idx)=><div key={`h${idx}`} style={{width:6,height:6,borderRadius:"50%",background:HOL_COLORS[h.office]||"#888",opacity:0.65}}/>)}
+                  {approved.map((l,idx)=><div key={`a${idx}`} style={{width:6,height:6,borderRadius:2,background:OFF_COLORS[l.office]||"#888"}}/>)}
+                  {pending.map((l,idx)=><div key={`p${idx}`} style={{width:6,height:6,borderRadius:2,background:"transparent",border:`1.5px solid ${OFF_COLORS[l.office]||"#888"}`}}/>)}
                 </div>
                 {hovered===ds&&(holidays.length>0||approved.length>0||pending.length>0)&&(
                   <div style={{position:"absolute",zIndex:99,top:"100%",...tipStyle,background:C.accent,color:"#fff",borderRadius:6,padding:"8px 10px",fontSize:11,whiteSpace:"nowrap",pointerEvents:"none",boxShadow:"0 4px 12px rgba(0,0,0,0.15)",minWidth:140}}>
@@ -560,10 +560,10 @@ function App() {
   if(view==="marked") return (<div style={{fontFamily:"system-ui,sans-serif",maxWidth:380,margin:"0 auto",padding:24,background:C.bg,minHeight:"100vh"}}><Header title={selName} sub={`${selOffice} · ${fmt(today())}`}/><div style={{textAlign:"center",padding:"48px 0"}}><div style={{width:48,height:48,borderRadius:"50%",background:"#f0fdf4",border:`2px solid ${C.success}`,margin:"0 auto 16px",display:"flex",alignItems:"center",justifyContent:"center"}}><div style={{width:12,height:12,borderRadius:"50%",background:C.success}}/></div><div style={{fontSize:18,fontWeight:700,marginBottom:6}}>Marked</div><div style={{fontSize:14,color:C.muted}}>{attendance[`${selOffice}__${selName}__${today()}`]?.status} — {fmt(today())}</div><Btn onClick={()=>setView("home")} style={{marginTop:28}}>Back to Home</Btn></div></div>);
 
   if(view==="calendar") return (
-    <div style={{fontFamily:"system-ui,sans-serif",maxWidth:700,margin:"0 auto",padding:24,background:C.bg,minHeight:"100vh"}}>
+    <div style={{fontFamily:"system-ui,sans-serif",maxWidth:700,margin:"0 auto",padding:"16px 12px",background:C.bg,minHeight:"100vh"}}>
       <Header title={selName} sub={`${selOffice} · ${fmt(today())}`}/>
-      <button onClick={()=>setView("home")} style={{background:"none",border:"none",color:C.muted,fontSize:13,cursor:"pointer",padding:0,marginBottom:20}}>← Back</button>
-      <div style={{fontSize:17,fontWeight:700,marginBottom:20}}>Team Calendar</div>
+      <button onClick={()=>setView("home")} style={{background:"none",border:"none",color:C.muted,fontSize:13,cursor:"pointer",padding:0,marginBottom:16}}>← Back</button>
+      <div style={{fontSize:16,fontWeight:700,marginBottom:16}}>Team Calendar</div>
       <AdminCalendar leaveApps={leaveApps.filter(a=>a.office===selOffice)} officeFilter={selOffice}/>
     </div>
   );
