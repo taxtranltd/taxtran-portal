@@ -46,10 +46,18 @@ const HOLIDAYS = {
 
 const GS_URL = "https://script.google.com/macros/s/AKfycbxVtudR5wZhIc2hcC4gpi87Rz6rcJm5vNqYgovj5hiIrwub_bEi0GbHka-F8IDa4hwO/exec";
 
+const jsonp = (url) => new Promise((resolve, reject) => {
+  const cb = "cb_" + Math.random().toString(36).slice(2);
+  const script = document.createElement("script");
+  window[cb] = (data) => { resolve(data); delete window[cb]; script.remove(); };
+  script.onerror = () => { reject(new Error("JSONP failed")); delete window[cb]; script.remove(); };
+  script.src = url + "&callback=" + cb;
+  document.head.appendChild(script);
+});
+
 const gsRead = async (sheet) => {
   try {
-    const res = await fetch(`${GS_URL}?action=read&sheet=${sheet}`);
-    const data = await res.json();
+    const data = await jsonp(`${GS_URL}?action=read&sheet=${sheet}`);
     if (!data || data.length === 0) return null;
     const headers = data[0];
     return data.slice(1).map(row => {
@@ -68,7 +76,7 @@ const gsWrite = async (sheet, records) => {
       data = [headers, ...records.map(r => headers.map(h => r[h] ?? ""))];
     }
     const encoded = encodeURIComponent(JSON.stringify(data));
-    await fetch(`${GS_URL}?action=write&sheet=${sheet}&data=${encoded}`);
+    await jsonp(`${GS_URL}?action=write&sheet=${sheet}&data=${encoded}`);
   } catch(e) { console.error("GS write error:", e); }
 };
 
