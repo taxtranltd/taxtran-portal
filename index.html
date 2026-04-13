@@ -87,8 +87,8 @@ const EMAILJS_KEY = "JWVJd6SQK-NWdG-bQ";
 const NOTIFY_ALL = ["vchugani98@gmail.com","sunil@taxtranltd.com","regina@diccvi.com"];
 const NOTIFY_SHORT = ["vchugani98@gmail.com","regina@diccvi.com"];
 
-const sendNotification = async (subject, message, days) => {
-  const recipients = days > 2 ? NOTIFY_ALL : NOTIFY_SHORT;
+const sendNotification = async (subject, message, days, customRecipients) => {
+  const recipients = customRecipients || (days > 2 ? NOTIFY_ALL : NOTIFY_SHORT);
   try {
     await Promise.all(recipients.map(email =>
       fetch("https://api.emailjs.com/api/v1.0/email/send", {
@@ -404,6 +404,11 @@ function App() {
 
   const allStaff=Object.entries(staffData).flatMap(([o,ms])=>ms.map(m=>({...m,office:o})));
 
+  const getStaffEmail = (office, name) => {
+    const staff = INITIAL_STAFF[office]?.find(s => s.name === name);
+    return staff?.email || null;
+  };
+
   const approveLeave=id=>{
     const app=leaveApps.find(a=>a.id===id);if(!app)return;
     saveLeave(leaveApps.map(a=>a.id===id?{...a,status:"approved"}:a));
@@ -411,8 +416,27 @@ function App() {
       const ns={...staffData};const sl=[...ns[app.office]];const idx=sl.findIndex(s=>s.name===app.name);
       if(idx>=0){const cur=sl[idx];const th=(cur.alDays*8)+(cur.alHours||0)-(app.days*8);sl[idx]={...cur,alDays:Math.max(0,Math.floor(th/8)),alHours:Math.max(0,th%8)};ns[app.office]=sl;saveStaff(ns);}
     }
+    const email=getStaffEmail(app.office,app.name);
+    if(email){
+      const subject=`Leave Approved — ${fmt(app.from)}${app.from!==app.to?` to ${fmt(app.to)}`:""}`; 
+      const message=`Hi ${app.name},\n\nYour ${app.leaveType} application has been approved.\n\nDates: ${fmt(app.from)}${app.from!==app.to?` to ${fmt(app.to)}`:""}\nDays: ${app.days}\n\nTaxtran HR`;
+      sendNotification(subject, message, 0, [email]);
+    }
   };
-  const rejectLeave=(id,reason)=>{saveLeave(leaveApps.map(a=>a.id===id?{...a,status:"rejected",rejectReason:reason||null}:a));setRejectModal(null);setRejectReason("");};
+
+  const rejectLeave=(id,reason)=>{
+    const app=leaveApps.find(a=>a.id===id);
+    saveLeave(leaveApps.map(a=>a.id===id?{...a,status:"rejected",rejectReason:reason||null}:a));
+    if(app){
+      const email=getStaffEmail(app.office,app.name);
+      if(email){
+        const subject=`Leave Request Update — ${fmt(app.from)}${app.from!==app.to?` to ${fmt(app.to)}`:""}`; 
+        const message=`Hi ${app.name},\n\nYour ${app.leaveType} application has been unsuccessful.\n\nDates: ${fmt(app.from)}${app.from!==app.to?` to ${fmt(app.to)}`:""}\n${reason?`Reason: ${reason}\n`:""}\nIf you have any questions please speak to your manager.\n\nTaxtran HR`;
+        sendNotification(subject, message, 0, [email]);
+      }
+    }
+    setRejectModal(null);setRejectReason("");
+  };
   const saveEdit=app=>{
     const old=leaveApps.find(a=>a.id===app.id);
     saveLeave(leaveApps.map(a=>a.id===app.id?app:a));
@@ -535,6 +559,15 @@ function App() {
 
   if(view==="marked") return (<div style={{fontFamily:"system-ui,sans-serif",maxWidth:380,margin:"0 auto",padding:24,background:C.bg,minHeight:"100vh"}}><Header title={selName} sub={`${selOffice} · ${fmt(today())}`}/><div style={{textAlign:"center",padding:"48px 0"}}><div style={{width:48,height:48,borderRadius:"50%",background:"#f0fdf4",border:`2px solid ${C.success}`,margin:"0 auto 16px",display:"flex",alignItems:"center",justifyContent:"center"}}><div style={{width:12,height:12,borderRadius:"50%",background:C.success}}/></div><div style={{fontSize:18,fontWeight:700,marginBottom:6}}>Marked</div><div style={{fontSize:14,color:C.muted}}>{attendance[`${selOffice}__${selName}__${today()}`]?.status} — {fmt(today())}</div><Btn onClick={()=>setView("home")} style={{marginTop:28}}>Back to Home</Btn></div></div>);
 
+  if(view==="calendar") return (
+    <div style={{fontFamily:"system-ui,sans-serif",maxWidth:700,margin:"0 auto",padding:24,background:C.bg,minHeight:"100vh"}}>
+      <Header title={selName} sub={`${selOffice} · ${fmt(today())}`}/>
+      <button onClick={()=>setView("home")} style={{background:"none",border:"none",color:C.muted,fontSize:13,cursor:"pointer",padding:0,marginBottom:20}}>← Back</button>
+      <div style={{fontSize:17,fontWeight:700,marginBottom:20}}>Team Calendar</div>
+      <AdminCalendar leaveApps={leaveApps.filter(a=>a.office===selOffice)} officeFilter={selOffice}/>
+    </div>
+  );
+
   if(view==="leave"||view==="sick") return (<div style={{fontFamily:"system-ui,sans-serif",maxWidth:380,margin:"0 auto",padding:24,background:C.bg,minHeight:"100vh"}}><Header title={selName} sub={`${selOffice} · ${fmt(today())}`}/><button onClick={()=>setView("home")} style={{background:"none",border:"none",color:C.muted,fontSize:13,cursor:"pointer",padding:0,marginBottom:20}}>← Back</button><div style={{fontSize:17,fontWeight:700,marginBottom:24}}>{view==="sick"?"Report Sick Leave":"Apply for Leave"}</div><LeaveForm selOffice={selOffice} initialType={view==="sick"?"Sick Leave":null} onSubmit={submitLeave} onBack={()=>setView("home")}/></div>);
 
   if(view==="info"){
@@ -554,6 +587,7 @@ function App() {
         <ActionBtn label="Mark as Present" sub={todayRecord?"Already marked today":"I am in the office today"} onClick={()=>markToday("Present")} disabled={!!todayRecord}/>
         <ActionBtn label="Report Sick Leave" sub={todayRecord?"Already marked today":"Mark sick for today or multiple days"} onClick={()=>setView("sick")} disabled={!!todayRecord}/>
         <ActionBtn label="Apply for Leave" sub="Annual leave or other" onClick={()=>setView("leave")}/>
+        <ActionBtn label="Team Calendar" sub="See who is away in your office" onClick={()=>setView("calendar")}/>
         <ActionBtn label="My Overview" sub={staffInfo?`${fmtBal(staffInfo.alDays,staffInfo.alHours)} annual leave remaining`:"View balance and history"} onClick={()=>setView("info")}/>
       </div>
       {myApps.filter(a=>a.status==="pending").length>0&&(<div onClick={()=>setView("info")} style={{background:C.subtle,border:`1px solid ${C.border}`,borderRadius:8,padding:"12px 16px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}><span style={{fontSize:13,color:C.muted}}>You have a pending leave application</span><span style={{color:C.muted}}>›</span></div>)}
