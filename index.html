@@ -310,6 +310,20 @@ function AdminSettings({attendance,saveAtt,leaveApps,saveLeave,pins,savePins,sta
         </div>
       </Card>
       <div style={{marginTop:24}}>
+        <div style={{fontWeight:700,fontSize:13,color:C.muted,textTransform:"uppercase",letterSpacing:0.5,marginBottom:12}}>Initialize Data</div>
+        <Card>
+          <div style={{fontSize:13,color:C.muted,marginBottom:12}}>First time setup — writes all staff and their opening AL balances to the database. Run this once before rolling out to staff.</div>
+          <button onClick={async()=>{
+            const records=Object.entries(INITIAL_STAFF).flatMap(([office,members])=>members.map(m=>({office,...m})));
+            await saveStaff(Object.fromEntries(Object.entries(INITIAL_STAFF).map(([o,ms])=>[o,ms.map(m=>({...m}))])));
+            setBalDone("All staff data initialized successfully.");
+            setTimeout(()=>setBalDone(""),3000);
+          }} style={{background:C.success,color:"#fff",border:"none",borderRadius:8,padding:"11px",fontSize:14,fontWeight:700,cursor:"pointer",width:"100%"}}>Initialize Staff Data</button>
+          {balDone&&<div style={{background:"#f0fdf4",border:`1px solid #bbf7d0`,borderRadius:8,padding:"10px 14px",fontSize:13,color:C.success,fontWeight:500,marginTop:12}}>{balDone}</div>}
+        </Card>
+      </div>
+
+      <div style={{marginTop:24}}>
         <div style={{fontWeight:700,fontSize:13,color:C.muted,textTransform:"uppercase",letterSpacing:0.5,marginBottom:12}}>Staff List</div>
         <Card>
           <div style={{fontSize:13,color:C.muted,marginBottom:12}}>If new staff aren't showing on the login screen, tap below to sync.</div>
