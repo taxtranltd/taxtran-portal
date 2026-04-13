@@ -8,11 +8,13 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { width: 100%; overflow-x: hidden; }
-    body { background: #fafafa; font-family: system-ui, -apple-system, sans-serif; }
-    input, select, button, textarea { font-family: inherit; max-width: 100%; }
-    table { max-width: 100%; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { width: 100%; overflow-x: hidden; }
+    body { width: 100%; overflow-x: hidden; background: #fafafa; font-family: system-ui, -apple-system, sans-serif; -webkit-text-size-adjust: 100%; }
+    input, select, button, textarea { font-family: inherit; max-width: 100%; font-size: 16px; }
+    img { max-width: 100%; }
+    table { width: 100%; }
+    #root { width: 100%; max-width: 100vw; overflow-x: hidden; }
   </style>
 </head>
 <body>
@@ -48,6 +50,7 @@ const HOLIDAYS = {
 };
 
 const GS_URL = "https://script.google.com/macros/s/AKfycbxVtudR5wZhIc2hcC4gpi87Rz6rcJm5vNqYgovj5hiIrwub_bEi0GbHka-F8IDa4hwO/exec";
+const CAL_CELL = "minmax(0,1fr)";
 
 const jsonp = (url) => new Promise((resolve, reject) => {
   const cb = "cb_" + Math.random().toString(36).slice(2);
@@ -208,16 +211,16 @@ function AdminCalendar({leaveApps,officeFilter}) {
         <div style={{fontWeight:700,fontSize:15}}>{monthName}</div>
         <button onClick={next} style={{background:C.subtle,border:`1px solid ${C.border}`,borderRadius:6,padding:"6px 16px",cursor:"pointer",fontWeight:700,fontSize:16}}>›</button>
       </div>
-      <div style={{display:"flex",flexWrap:"wrap",gap:12,marginBottom:16}}>
-        {Object.entries(OFF_COLORS).map(([o,c])=><div key={o} style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:10,height:10,borderRadius:2,background:c}}/><span style={{fontSize:11,color:C.muted}}>{o} leave</span></div>)}
-        {Object.entries(HOL_COLORS).map(([o,c])=><div key={o+"-h"} style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:10,height:10,borderRadius:"50%",background:c,opacity:0.6}}/><span style={{fontSize:11,color:C.muted}}>{o} holiday</span></div>)}
+      <div style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:12}}>
+        {Object.entries(OFF_COLORS).map(([o,c])=><div key={o} style={{display:"flex",alignItems:"center",gap:4}}><div style={{width:8,height:8,borderRadius:2,background:c,flexShrink:0}}/><span style={{fontSize:10,color:C.muted}}>{o}</span></div>)}
+        {Object.entries(HOL_COLORS).map(([o,c])=><div key={o+"-h"} style={{display:"flex",alignItems:"center",gap:4}}><div style={{width:8,height:8,borderRadius:"50%",background:c,opacity:0.6,flexShrink:0}}/><span style={{fontSize:10,color:C.muted}}>{o} hol</span></div>)}
       </div>
-      <Card style={{padding:0,overflow:"hidden",marginBottom:selected?12:0}}>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",borderBottom:`1px solid ${C.border}`}}>
-          {["S","M","T","W","T","F","S"].map((d,i)=><div key={i} style={{padding:"6px 2px",textAlign:"center",fontSize:11,fontWeight:700,color:C.muted,letterSpacing:0.5}}>{d}</div>)}
+      <Card style={{padding:0,overflow:"hidden",marginBottom:selected?12:0,width:"100%"}}>
+        <div style={{display:"grid",gridTemplateColumns:`repeat(7,${CAL_CELL})`,borderBottom:`1px solid ${C.border}`}}>
+          {["S","M","T","W","T","F","S"].map((d,i)=><div key={i} style={{padding:"6px 0",textAlign:"center",fontSize:10,fontWeight:700,color:C.muted}}>{d}</div>)}
         </div>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)"}}>
-          {Array.from({length:firstDay}).map((_,i)=><div key={`e${i}`} style={{borderRight:`1px solid ${C.border}`,borderBottom:`1px solid ${C.border}`,minHeight:44}}/>)}
+        <div style={{display:"grid",gridTemplateColumns:`repeat(7,${CAL_CELL})`}}>
+          {Array.from({length:firstDay}).map((_,i)=><div key={`e${i}`} style={{borderRight:`1px solid ${C.border}`,borderBottom:`1px solid ${C.border}`,minHeight:40}}/>)}
           {Array.from({length:daysInMonth}).map((_,i)=>{
             const day=i+1,ds=`${calMonth}-${String(day).padStart(2,"0")}`;
             const {holidays,leaves}=getDayData(ds);
@@ -227,12 +230,12 @@ function AdminCalendar({leaveApps,officeFilter}) {
             const tipStyle=col<=1?{left:0,transform:"none"}:col>=5?{right:0,left:"auto",transform:"none"}:{left:"50%",transform:"translateX(-50%)"};
             return (
               <div key={day} onClick={()=>setSelected(isSel?null:ds)} onMouseEnter={()=>setHovered(ds)} onMouseLeave={()=>setHovered(null)}
-                style={{borderRight:`1px solid ${C.border}`,borderBottom:`1px solid ${C.border}`,minHeight:44,padding:"3px 4px",cursor:"pointer",background:isSel?C.subtle:C.surface,position:"relative"}}>
-                <div style={{fontSize:11,fontWeight:isToday?800:500,color:isToday?"#fff":C.text,background:isToday?C.accent:"transparent",borderRadius:"50%",width:20,height:20,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:2}}>{day}</div>
+                style={{borderRight:`1px solid ${C.border}`,borderBottom:`1px solid ${C.border}`,minHeight:40,padding:"3px 2px",cursor:"pointer",background:isSel?C.subtle:C.surface,position:"relative",overflow:"hidden"}}>
+                <div style={{fontSize:10,fontWeight:isToday?800:500,color:isToday?"#fff":C.text,background:isToday?C.accent:"transparent",borderRadius:"50%",width:18,height:18,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:2,flexShrink:0}}>{day}</div>
                 <div style={{display:"flex",flexWrap:"wrap",gap:1}}>
-                  {holidays.map((h,idx)=><div key={`h${idx}`} style={{width:6,height:6,borderRadius:"50%",background:HOL_COLORS[h.office]||"#888",opacity:0.65}}/>)}
-                  {approved.map((l,idx)=><div key={`a${idx}`} style={{width:6,height:6,borderRadius:2,background:OFF_COLORS[l.office]||"#888"}}/>)}
-                  {pending.map((l,idx)=><div key={`p${idx}`} style={{width:6,height:6,borderRadius:2,background:"transparent",border:`1.5px solid ${OFF_COLORS[l.office]||"#888"}`}}/>)}
+                  {holidays.map((h,idx)=><div key={`h${idx}`} style={{width:5,height:5,borderRadius:"50%",background:HOL_COLORS[h.office]||"#888",opacity:0.65,flexShrink:0}}/>)}
+                  {approved.map((l,idx)=><div key={`a${idx}`} style={{width:5,height:5,borderRadius:1,background:OFF_COLORS[l.office]||"#888",flexShrink:0}}/>)}
+                  {pending.map((l,idx)=><div key={`p${idx}`} style={{width:5,height:5,borderRadius:1,background:"transparent",border:`1px solid ${OFF_COLORS[l.office]||"#888"}`,flexShrink:0}}/>)}
                 </div>
                 {hovered===ds&&(holidays.length>0||approved.length>0||pending.length>0)&&(
                   <div style={{position:"absolute",zIndex:99,top:"100%",...tipStyle,background:C.accent,color:"#fff",borderRadius:6,padding:"8px 10px",fontSize:11,whiteSpace:"nowrap",pointerEvents:"none",boxShadow:"0 4px 12px rgba(0,0,0,0.15)",minWidth:140}}>
