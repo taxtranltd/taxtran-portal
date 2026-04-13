@@ -365,7 +365,7 @@ function App() {
         const [pinsData, attData, leaveData, staffRaw] = await Promise.all([
           gsRead("pins"), gsRead("attendance"), gsRead("leave"), gsRead("staff")
         ]);
-        if (pinsData) { const p={}; pinsData.forEach(r=>p[r.key]=r.value); setPins(p); }
+        if (pinsData) { const p={}; pinsData.forEach(r=>p[r.key]=String(r.value)); setPins(p); }
         if (attData) { const a={}; attData.forEach(r=>a[r.key]=JSON.parse(r.value)); setAttendance(a); }
         if (leaveData) setLeaveApps(leaveData.map(r=>({...r,days:Number(r.days),urgent:r.urgent==="true"})));
         if (staffRaw) {
