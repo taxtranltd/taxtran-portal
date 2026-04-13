@@ -44,6 +44,34 @@ const HOLIDAYS = {
   "Yiwu":{"2026-01-01":"New Year's Day","2026-01-28":"Spring Festival D1","2026-01-29":"Spring Festival D2","2026-01-30":"Spring Festival D3","2026-01-31":"Spring Festival D4","2026-02-01":"Spring Festival D5","2026-02-02":"Spring Festival D6","2026-02-03":"Spring Festival D7","2026-04-05":"Qingming Festival","2026-05-01":"Labour Day","2026-05-02":"Labour Day","2026-05-03":"Labour Day","2026-06-19":"Dragon Boat Festival","2026-09-25":"Mid-Autumn Festival","2026-10-01":"Golden Week D1","2026-10-02":"Golden Week D2","2026-10-03":"Golden Week D3","2026-10-04":"Golden Week D4","2026-10-05":"Golden Week D5","2026-10-06":"Golden Week D6","2026-10-07":"Golden Week D7"},
 };
 
+const GS_URL = "https://script.google.com/macros/s/AKfycbxVtudR5wZhIc2hcC4gpi87Rz6rcJm5vNqYgovj5hiIrwub_bEi0GbHka-F8IDa4hwO/exec";
+
+const gsRead = async (sheet) => {
+  try {
+    const res = await fetch(`${GS_URL}?action=read&sheet=${sheet}`);
+    const data = await res.json();
+    if (!data || data.length === 0) return null;
+    const headers = data[0];
+    return data.slice(1).map(row => {
+      const obj = {};
+      headers.forEach((h, i) => obj[h] = row[i]);
+      return obj;
+    });
+  } catch(e) { console.error("GS read error:", e); return null; }
+};
+
+const gsWrite = async (sheet, records) => {
+  try {
+    if (!records || records.length === 0) {
+      await fetch(GS_URL, { method:"POST", body: JSON.stringify({ action:"write", sheet, data:[] }) });
+      return;
+    }
+    const headers = Object.keys(records[0]);
+    const data = [headers, ...records.map(r => headers.map(h => r[h] ?? ""))];
+    await fetch(GS_URL, { method:"POST", body: JSON.stringify({ action:"write", sheet, data }) });
+  } catch(e) { console.error("GS write error:", e); }
+};
+
 const EMAILJS_SERVICE = "service_iiy3p6r";
 const EMAILJS_TEMPLATE = "template_e2nfy9j";
 const EMAILJS_KEY = "JWVJd6SQK-NWdG-bQ";
@@ -277,7 +305,7 @@ function AdminSettings({attendance,saveAtt,leaveApps,saveLeave,pins,savePins,sta
         <div style={{fontWeight:700,fontSize:13,color:C.muted,textTransform:"uppercase",letterSpacing:0.5,marginBottom:12}}>Staff List</div>
         <Card>
           <div style={{fontSize:13,color:C.muted,marginBottom:12}}>If new staff aren't showing on the login screen, tap below to sync.</div>
-          <button onClick={()=>{localStorage.removeItem("tx_staff4");window.location.reload();}} style={{background:C.accent,color:"#fff",border:"none",borderRadius:8,padding:"11px",fontSize:14,fontWeight:700,cursor:"pointer",width:"100%"}}>Sync Staff List</button>
+          <button onClick={async ()=>{ await gsWrite("staff",[]); window.location.reload(); }} style={{background:C.accent,color:"#fff",border:"none",borderRadius:8,padding:"11px",fontSize:14,fontWeight:700,cursor:"pointer",width:"100%"}}>Sync Staff List</button>
         </Card>
       </div>
     </div>
@@ -305,20 +333,51 @@ function App() {
   const [editingApp,setEditingApp]=React.useState(null);
   const [rejectModal,setRejectModal]=React.useState(null);
   const [rejectReason,setRejectReason]=React.useState("");
+  const [loading,setLoading]=React.useState(true);
 
   React.useEffect(()=>{
-    try{
-      const p=localStorage.getItem("tx_pins4");if(p)setPins(JSON.parse(p));
-      const a=localStorage.getItem("tx_att4");if(a)setAttendance(JSON.parse(a));
-      const l=localStorage.getItem("tx_leave4");if(l)setLeaveApps(JSON.parse(l));
-      const s=localStorage.getItem("tx_staff4");if(s)setStaffData(JSON.parse(s));
-    }catch(e){}
+    const load = async () => {
+      setLoading(true);
+      try {
+        const [pinsData, attData, leaveData, staffRaw] = await Promise.all([
+          gsRead("pins"), gsRead("attendance"), gsRead("leave"), gsRead("staff")
+        ]);
+        if (pinsData) { const p={}; pinsData.forEach(r=>p[r.key]=r.value); setPins(p); }
+        if (attData) { const a={}; attData.forEach(r=>a[r.key]=JSON.parse(r.value)); setAttendance(a); }
+        if (leaveData) setLeaveApps(leaveData.map(r=>({...r,days:Number(r.days),urgent:r.urgent==="true"})));
+        if (staffRaw) {
+          const sd={};
+          staffRaw.forEach(r=>{
+            if(!sd[r.office])sd[r.office]=[];
+            sd[r.office].push({name:r.name,alDays:Number(r.alDays),alHours:Number(r.alHours)});
+          });
+          if(Object.keys(sd).length>0)setStaffData(sd);
+        }
+      } catch(e){ console.error("Load error:",e); }
+      setLoading(false);
+    };
+    load();
   },[]);
 
-  const savePins=p=>{setPins(p);localStorage.setItem("tx_pins4",JSON.stringify(p));};
-  const saveAtt=a=>{setAttendance(a);localStorage.setItem("tx_att4",JSON.stringify(a));};
-  const saveLeave=l=>{setLeaveApps(l);localStorage.setItem("tx_leave4",JSON.stringify(l));};
-  const saveStaff=s=>{setStaffData(s);localStorage.setItem("tx_staff4",JSON.stringify(s));};
+  const savePins = async (p) => {
+    setPins(p);
+    const records = Object.entries(p).map(([key,value])=>({key,value}));
+    await gsWrite("pins", records);
+  };
+  const saveAtt = async (a) => {
+    setAttendance(a);
+    const records = Object.entries(a).map(([key,value])=>({key,value:JSON.stringify(value)}));
+    await gsWrite("attendance", records);
+  };
+  const saveLeave = async (l) => {
+    setLeaveApps(l);
+    await gsWrite("leave", l);
+  };
+  const saveStaff = async (s) => {
+    setStaffData(s);
+    const records = Object.entries(s).flatMap(([office,members])=>members.map(m=>({office,...m})));
+    await gsWrite("staff", records);
+  };
 
   const allStaff=Object.entries(staffData).flatMap(([o,ms])=>ms.map(m=>({...m,office:o})));
 
@@ -384,6 +443,13 @@ function App() {
         <div><div style={{fontSize:18,fontWeight:800,color:C.text,letterSpacing:-0.3}}>{title}</div>{sub&&<div style={{fontSize:13,color:C.muted,marginTop:2}}>{sub}</div>}</div>
         <Btn variant="ghost" onClick={logout} style={{fontSize:13,padding:"6px 12px"}}>Sign out</Btn>
       </div>
+    </div>
+  );
+
+  if(loading) return (
+    <div style={{fontFamily:"system-ui,sans-serif",maxWidth:380,margin:"0 auto",padding:24,textAlign:"center",paddingTop:80}}>
+      <div style={{fontSize:22,fontWeight:800,color:"#111827",letterSpacing:-0.5,marginBottom:8}}>Taxtran</div>
+      <div style={{fontSize:14,color:"#6b7280"}}>Loading...</div>
     </div>
   );
 
