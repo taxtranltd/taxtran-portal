@@ -180,7 +180,15 @@ function LeaveForm({selOffice,initialType,onSubmit,onBack}) {
       )}
       {mode==="range"&&from&&to&&to>=from&&(<div style={{fontSize:13,color:C.muted,fontWeight:500}}>{daysBetween(from,to)} day{daysBetween(from,to)!==1?"s":""} selected{holCount>0&&<span style={{color:C.success}}> · {holCount} holiday{holCount>1?"s":""} excluded → <strong>{effDays}</strong> AL day{effDays!==1?"s":""} deducted</span>}</div>)}
       {leaveType==="Annual Leave"&&!urgent&&(<div style={{background:C.subtle,borderRadius:8,padding:"10px 14px",fontSize:12,color:C.muted,lineHeight:1.6}}>Notice: 1–2 days → 48 hrs · 3+ days → 2 weeks</div>)}
-      {leaveType==="Compensatory Leave"&&(<div style={{background:C.subtle,borderRadius:8,padding:"10px 14px",fontSize:12,color:C.muted,lineHeight:1.6}}>Compensatory leave must be applied at least 3 days in advance and taken within 8 weeks of returning from the business trip.</div>)}
+      {leaveType==="Compensatory Leave"&&(()=>{
+        const rule=COMP_RULES[selOffice]||COMP_RULES["Taipei"];
+        return (<div style={{display:"flex",flexDirection:"column",gap:6}}>
+          <div style={{background:C.subtle,borderRadius:8,padding:"10px 14px",fontSize:12,color:C.muted,lineHeight:1.6}}>
+            {rule.windowWeeks?`Must be taken within ${rule.windowWeeks} weeks of returning from business trip.`:"No expiry limit for comp leave."} Apply at least {rule.noticeDays} days in advance.
+          </div>
+          {rule.deadlineNote&&<div style={{background:"#fffbeb",border:`1px solid #fde68a`,borderRadius:8,padding:"10px 14px",fontSize:12,color:C.warning,lineHeight:1.6}}>{rule.deadlineNote}</div>}
+        </div>);
+      })()}
       {isSick&&(<div><Lbl>Doctor's Note</Lbl><label style={{display:"block",border:`1px dashed ${docNote?C.success:C.border}`,borderRadius:8,padding:"14px",cursor:"pointer",background:docNote?"#f0fdf4":C.subtle,textAlign:"center"}}><input type="file" accept="image/*,application/pdf" onChange={e=>setDocNote(e.target.files[0]||null)} style={{display:"none"}}/>{docNote?(<div><div style={{fontSize:13,fontWeight:600,color:C.success}}>File attached</div><div style={{fontSize:12,color:C.muted}}>{docNote.name}</div></div>):(<div><div style={{fontSize:13,fontWeight:600,color:C.muted}}>Upload doctor's note</div><div style={{fontSize:11,color:C.muted}}>JPG, PNG or PDF</div></div>)}</label>{docNote&&<button onClick={()=>setDocNote(null)} style={{background:"none",border:"none",color:C.danger,fontSize:12,cursor:"pointer",marginTop:6,padding:0}}>Remove</button>}</div>)}
       <div><Lbl>Note {urgent?"(required)":"(optional)"}</Lbl><input value={note} onChange={e=>setNote(e.target.value)} placeholder={urgent?"Explain reason for urgent leave...":"Add a note..."} style={{...inp,borderColor:urgent&&!note.trim()?C.warning:C.border}}/></div>
       {error&&<div style={{background:"#fef2f2",border:`1px solid #fecaca`,borderRadius:8,padding:"10px 14px",fontSize:13,color:C.danger}}>{error}</div>}
