@@ -32,6 +32,19 @@ const COMP_RULES={
   "Yiwu":{noticeDays:3,windowWeeks:null,deadlineNote:"No expiry limit. Cash payout option available — speak to management."},
 };
 
+const countWorkdays=(from,to,hols={})=>{
+  let count=0;
+  const cur=new Date(from+"T00:00:00");
+  const end=new Date(to+"T00:00:00");
+  while(cur<=end){
+    const dow=cur.getDay();
+    const ds=`${cur.getFullYear()}-${String(cur.getMonth()+1).padStart(2,"0")}-${String(cur.getDate()).padStart(2,"0")}`;
+    if(dow!==0&&dow!==6&&!hols[ds])count++;
+    cur.setDate(cur.getDate()+1);
+  }
+  return count;
+};
+
 const INITIAL_STAFF={
   "Hong Kong":[
     {name:"Vishal",alDays:15,alHours:0,compDays:0,email:"vishal@taxtranltd.com",startDate:"2025-01-08"},
@@ -149,9 +162,7 @@ function LeaveForm({selOffice,initialType,onSubmit,onBack}){
   const toggleU=()=>{const n=!urgent;setUrgent(n);const mn=n?today():addDays(today(),2);setFrom(mn);setTo(mn);};
   const realTo=mode==="single"?from:to;
   const mn=getMin();
-  const holCount=Array.from({length:dBetween(from,realTo)},(_,i)=>addDays(from,i)).filter(d=>hols[d]).length;
-  const rawDays=dBetween(from,realTo)-holCount;
-  const effDays=Math.max(0,mode==="single"&&hasSession&&session!=="full"?0.5:rawDays);
+  const effDays=Math.max(0,mode==="single"&&hasSession&&session!=="full"?0.5:countWorkdays(from,realTo,hols));
   const sessionLabel=session==="am"?"AM (Morning)":session==="pm"?"PM (Afternoon)":"Full Day";
   const compRule=COMP_RULES[selOffice]||COMP_RULES["Taipei"];
   const submit=()=>{
@@ -171,7 +182,7 @@ function LeaveForm({selOffice,initialType,onSubmit,onBack}){
       {mode==="single"&&hasSession&&<div><Lbl>Session</Lbl><div style={{display:"flex",gap:6}}>{[["am","AM"],["pm","PM"],["full","Full Day"]].map(([v,l])=><button key={v} onClick={()=>setSession(v)} style={{flex:1,padding:"9px",borderRadius:8,fontSize:13,fontWeight:600,cursor:"pointer",border:`1px solid ${session===v?C.acc:C.bdr}`,background:session===v?C.acc:C.sur,color:session===v?"#fff":C.txt}}>{l}</button>)}</div></div>}
       {mode==="single"?<div><Lbl>Date</Lbl><input type="date" value={from} min={mn} onChange={e=>setFrom(e.target.value)} style={inp}/>{hols[from]&&<div style={{background:"#f0fdf4",border:`1px solid #bbf7d0`,borderRadius:8,padding:"7px 12px",fontSize:12,color:C.ok,marginTop:6}}>{hols[from]} is a public holiday — won't count as leave.</div>}{!urgent&&!isSick&&<div style={{fontSize:11,color:C.muted,marginTop:5}}>Earliest: {fmt(mn)}</div>}</div>:<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}><div><Lbl>From</Lbl><input type="date" value={from} min={mn} onChange={e=>setFromX(e.target.value)} style={inp}/>{hols[from]&&<div style={{fontSize:11,color:C.ok,marginTop:4}}>{hols[from]}</div>}</div><div><Lbl>To</Lbl><input type="date" value={to} min={from} onChange={e=>setToX(e.target.value)} style={inp}/>{hols[to]&&<div style={{fontSize:11,color:C.ok,marginTop:4}}>{hols[to]}</div>}</div></div>}
       {mode==="single"&&hasSession&&!hols[from]&&<div style={{fontSize:13,color:C.muted,fontWeight:500}}>Deducting <strong>{effDays}</strong> day{effDays!==1?"s":""} — {sessionLabel}</div>}
-      {mode==="range"&&from&&to&&to>=from&&<div style={{fontSize:13,color:C.muted,fontWeight:500}}>{dBetween(from,to)} day{dBetween(from,to)!==1?"s":""} selected{holCount>0&&<span style={{color:C.ok}}> · {holCount} holiday{holCount>1?"s":""} excluded → <strong>{effDays}</strong> day{effDays!==1?"s":""} deducted</span>}</div>}
+      {mode==="range"&&from&&to&&to>=from&&<div style={{fontSize:13,color:C.muted,fontWeight:500}}><strong>{effDays}</strong> working day{effDays!==1?"s":""} will be deducted <span style={{color:C.muted,fontSize:12}}>(weekends & holidays excluded)</span></div>}
       {type==="Annual Leave"&&!urgent&&<div style={{background:C.sub,borderRadius:8,padding:"10px 14px",fontSize:12,color:C.muted,lineHeight:1.6}}>Notice: 1–2 days → 48 hrs · 3+ days → 2 weeks</div>}
       {type==="Compensatory Leave"&&<div style={{display:"flex",flexDirection:"column",gap:6}}><div style={{background:C.sub,borderRadius:8,padding:"10px 14px",fontSize:12,color:C.muted,lineHeight:1.6}}>{compRule.windowWeeks?`Must be taken within ${compRule.windowWeeks} weeks of returning from business trip.`:"No expiry limit."} Apply at least {compRule.noticeDays} days in advance.</div>{compRule.deadlineNote&&<div style={{background:"#fffbeb",border:`1px solid #fde68a`,borderRadius:8,padding:"10px 14px",fontSize:12,color:C.warn,lineHeight:1.6}}>{compRule.deadlineNote}</div>}</div>}
       {isSick&&<div><Lbl>Doctor's Note</Lbl><label style={{display:"block",border:`1px dashed ${doc?C.ok:C.bdr}`,borderRadius:8,padding:"14px",cursor:"pointer",background:doc?"#f0fdf4":C.sub,textAlign:"center"}}><input type="file" accept="image/*,application/pdf" onChange={e=>setDoc(e.target.files[0]||null)} style={{display:"none"}}/>{doc?<div><div style={{fontSize:13,fontWeight:600,color:C.ok}}>File attached</div><div style={{fontSize:12,color:C.muted}}>{doc.name}</div></div>:<div><div style={{fontSize:13,fontWeight:600,color:C.muted}}>Upload doctor's note</div><div style={{fontSize:11,color:C.muted}}>JPG, PNG or PDF</div></div>}</label>{doc&&<button onClick={()=>setDoc(null)} style={{background:"none",border:"none",color:C.err,fontSize:12,cursor:"pointer",marginTop:6,padding:0}}>Remove</button>}</div>}
@@ -447,7 +458,7 @@ function App(){
     saveLeaves([...leaves,{id:Date.now(),office:selOff,name:selName,leaveType,from,to,days,note,doctorNote,urgent,status:"pending",submittedAt:new Date().toISOString()}]);
     if(leaveType==="Sick Leave"){
       const na={...att};
-      Array.from({length:dBetween(from,to)},(_,i)=>addDays(from,i)).forEach(d=>{na[`${selOff}__${selName}__${d}`]={status:"Sick Leave",ts:new Date().toISOString()};});
+      Array.from({length:dBetween(from,to)},(_,i)=>addDays(from,i)).filter(d=>{const dow=new Date(d+"T00:00:00").getDay();return dow!==0&&dow!==6;}).forEach(d=>{na[`${selOff}__${selName}__${d}`]={status:"Sick Leave",ts:new Date().toISOString()};});
       saveAtt(na);
       notify(`Sick Leave — ${selName} (${selOff})`,`${selName} from ${selOff} reported sick leave.\n\nDates: ${fmt(from)}${from!==to?` to ${fmt(to)}`:""}\nDays: ${days}${note?`\nNote: ${note}`:""}`,days);
     }else{
