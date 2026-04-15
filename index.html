@@ -132,23 +132,27 @@ function LeaveForm({selOffice,initialType,onSubmit,onBack}){
   const isSick=initialType==="Sick Leave";
   const [type,setType]=React.useState(initialType||"Annual Leave");
   const [mode,setMode]=React.useState("single");
+  const [session,setSession]=React.useState("full");
   const [urgent,setUrgent]=React.useState(false);
   const [note,setNote]=React.useState("");
   const [doc,setDoc]=React.useState(null);
   const [err,setErr]=React.useState("");
   const [done,setDone]=React.useState(false);
+  const hasSession=type==="Annual Leave"||type==="Sick Leave"||type==="Other Leave";
   const getMin=()=>isSick||urgent?today():addDays(today(),2);
   const [from,setFrom]=React.useState(getMin);
   const [to,setTo]=React.useState(getMin);
   const hols=HOLIDAYS[selOffice]||{};
-  const setModeX=m=>{setMode(m);const mn=getMin();setFrom(mn);setTo(mn);};
+  const setModeX=m=>{setMode(m);const mn=getMin();setFrom(mn);setTo(mn);if(m==="range")setSession("full");};
   const setFromX=v=>{setFrom(v);if(to<v)setTo(v);};
   const setToX=v=>{setTo(v);if(type==="Annual Leave"&&!urgent&&dBetween(from,v)>=3){const m=addDays(today(),14);if(from<m)setFrom(m);}};
   const toggleU=()=>{const n=!urgent;setUrgent(n);const mn=n?today():addDays(today(),2);setFrom(mn);setTo(mn);};
   const realTo=mode==="single"?from:to;
   const mn=getMin();
   const holCount=Array.from({length:dBetween(from,realTo)},(_,i)=>addDays(from,i)).filter(d=>hols[d]).length;
-  const effDays=Math.max(0,dBetween(from,realTo)-holCount);
+  const rawDays=dBetween(from,realTo)-holCount;
+  const effDays=Math.max(0,mode==="single"&&hasSession&&session!=="full"?0.5:rawDays);
+  const sessionLabel=session==="am"?"AM (Morning)":session==="pm"?"PM (Afternoon)":"Full Day";
   const compRule=COMP_RULES[selOffice]||COMP_RULES["Taipei"];
   const submit=()=>{
     setErr("");
@@ -156,16 +160,18 @@ function LeaveForm({selOffice,initialType,onSubmit,onBack}){
     if(urgent&&!note.trim()){setErr("A note is required for urgent leave.");return;}
     if(type==="Annual Leave"&&!urgent){const e=chkNotice(from,realTo,type,selOffice);if(e){setErr(e);return;}}
     if(type==="Compensatory Leave"){const e=chkNotice(from,realTo,type,selOffice);if(e){setErr(e);return;}}
-    onSubmit({leaveType:type,from,to:realTo,days:effDays,note,doctorNote:doc?.name||null,urgent});
+    onSubmit({leaveType:type,from,to:realTo,days:effDays,session:mode==="single"&&hasSession?session:"full",note,doctorNote:doc?.name||null,urgent});
     setDone(true);setTimeout(()=>onBack(),1800);
   };
   return(
     <div style={{display:"flex",flexDirection:"column",gap:16}}>
-      {!isSick&&<div><Lbl>Leave Type</Lbl><div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{LEAVE_TYPES.filter(t=>t!=="Sick Leave").map(t=><button key={t} onClick={()=>{setType(t);const mn2=urgent?today():addDays(today(),2);setFrom(mn2);setTo(mn2);}} style={{flex:"1 1 auto",padding:"9px 6px",borderRadius:8,fontSize:11,fontWeight:600,cursor:"pointer",border:`1px solid ${type===t?C.acc:C.bdr}`,background:type===t?C.acc:C.sur,color:type===t?"#fff":C.txt}}>{t}</button>)}</div></div>}
+      {!isSick&&<div><Lbl>Leave Type</Lbl><div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{LEAVE_TYPES.filter(t=>t!=="Sick Leave").map(t=><button key={t} onClick={()=>{setType(t);const mn2=urgent?today():addDays(today(),2);setFrom(mn2);setTo(mn2);setSession("full");}} style={{flex:"1 1 auto",padding:"9px 6px",borderRadius:8,fontSize:11,fontWeight:600,cursor:"pointer",border:`1px solid ${type===t?C.acc:C.bdr}`,background:type===t?C.acc:C.sur,color:type===t?"#fff":C.txt}}>{t}</button>)}</div></div>}
       {type==="Annual Leave"&&<div><Lbl>Urgency</Lbl><div style={{display:"flex",gap:6}}>{[["false","Standard"],["true","Urgent"]].map(([v,l])=><button key={v} onClick={toggleU} style={{flex:1,padding:"9px",borderRadius:8,fontSize:13,fontWeight:600,cursor:"pointer",border:`1px solid ${String(urgent)===v?C.acc:C.bdr}`,background:String(urgent)===v?C.acc:C.sur,color:String(urgent)===v?"#fff":C.txt}}>{l}</button>)}</div>{urgent&&<div style={{background:"#fffbeb",border:`1px solid #fde68a`,borderRadius:8,padding:"8px 12px",fontSize:12,color:C.warn,marginTop:8}}>Urgent leave bypasses notice rules. Note is mandatory.</div>}</div>}
       <div><Lbl>Duration</Lbl><div style={{display:"flex",gap:6}}>{[["single","Single Day"],["range","Date Range"]].map(([v,l])=><button key={v} onClick={()=>setModeX(v)} style={{flex:1,padding:"9px",borderRadius:8,fontSize:13,fontWeight:600,cursor:"pointer",border:`1px solid ${mode===v?C.acc:C.bdr}`,background:mode===v?C.acc:C.sur,color:mode===v?"#fff":C.txt}}>{l}</button>)}</div></div>
+      {mode==="single"&&hasSession&&<div><Lbl>Session</Lbl><div style={{display:"flex",gap:6}}>{[["am","AM"],["pm","PM"],["full","Full Day"]].map(([v,l])=><button key={v} onClick={()=>setSession(v)} style={{flex:1,padding:"9px",borderRadius:8,fontSize:13,fontWeight:600,cursor:"pointer",border:`1px solid ${session===v?C.acc:C.bdr}`,background:session===v?C.acc:C.sur,color:session===v?"#fff":C.txt}}>{l}</button>)}</div></div>}
       {mode==="single"?<div><Lbl>Date</Lbl><input type="date" value={from} min={mn} onChange={e=>setFrom(e.target.value)} style={inp}/>{hols[from]&&<div style={{background:"#f0fdf4",border:`1px solid #bbf7d0`,borderRadius:8,padding:"7px 12px",fontSize:12,color:C.ok,marginTop:6}}>{hols[from]} is a public holiday — won't count as leave.</div>}{!urgent&&!isSick&&<div style={{fontSize:11,color:C.muted,marginTop:5}}>Earliest: {fmt(mn)}</div>}</div>:<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}><div><Lbl>From</Lbl><input type="date" value={from} min={mn} onChange={e=>setFromX(e.target.value)} style={inp}/>{hols[from]&&<div style={{fontSize:11,color:C.ok,marginTop:4}}>{hols[from]}</div>}</div><div><Lbl>To</Lbl><input type="date" value={to} min={from} onChange={e=>setToX(e.target.value)} style={inp}/>{hols[to]&&<div style={{fontSize:11,color:C.ok,marginTop:4}}>{hols[to]}</div>}</div></div>}
-      {mode==="range"&&from&&to&&to>=from&&<div style={{fontSize:13,color:C.muted,fontWeight:500}}>{dBetween(from,to)} day{dBetween(from,to)!==1?"s":""} selected{holCount>0&&<span style={{color:C.ok}}> · {holCount} holiday{holCount>1?"s":""} excluded → <strong>{effDays}</strong> AL day{effDays!==1?"s":""} deducted</span>}</div>}
+      {mode==="single"&&hasSession&&!hols[from]&&<div style={{fontSize:13,color:C.muted,fontWeight:500}}>Deducting <strong>{effDays}</strong> day{effDays!==1?"s":""} — {sessionLabel}</div>}
+      {mode==="range"&&from&&to&&to>=from&&<div style={{fontSize:13,color:C.muted,fontWeight:500}}>{dBetween(from,to)} day{dBetween(from,to)!==1?"s":""} selected{holCount>0&&<span style={{color:C.ok}}> · {holCount} holiday{holCount>1?"s":""} excluded → <strong>{effDays}</strong> day{effDays!==1?"s":""} deducted</span>}</div>}
       {type==="Annual Leave"&&!urgent&&<div style={{background:C.sub,borderRadius:8,padding:"10px 14px",fontSize:12,color:C.muted,lineHeight:1.6}}>Notice: 1–2 days → 48 hrs · 3+ days → 2 weeks</div>}
       {type==="Compensatory Leave"&&<div style={{display:"flex",flexDirection:"column",gap:6}}><div style={{background:C.sub,borderRadius:8,padding:"10px 14px",fontSize:12,color:C.muted,lineHeight:1.6}}>{compRule.windowWeeks?`Must be taken within ${compRule.windowWeeks} weeks of returning from business trip.`:"No expiry limit."} Apply at least {compRule.noticeDays} days in advance.</div>{compRule.deadlineNote&&<div style={{background:"#fffbeb",border:`1px solid #fde68a`,borderRadius:8,padding:"10px 14px",fontSize:12,color:C.warn,lineHeight:1.6}}>{compRule.deadlineNote}</div>}</div>}
       {isSick&&<div><Lbl>Doctor's Note</Lbl><label style={{display:"block",border:`1px dashed ${doc?C.ok:C.bdr}`,borderRadius:8,padding:"14px",cursor:"pointer",background:doc?"#f0fdf4":C.sub,textAlign:"center"}}><input type="file" accept="image/*,application/pdf" onChange={e=>setDoc(e.target.files[0]||null)} style={{display:"none"}}/>{doc?<div><div style={{fontSize:13,fontWeight:600,color:C.ok}}>File attached</div><div style={{fontSize:12,color:C.muted}}>{doc.name}</div></div>:<div><div style={{fontSize:13,fontWeight:600,color:C.muted}}>Upload doctor's note</div><div style={{fontSize:11,color:C.muted}}>JPG, PNG or PDF</div></div>}</label>{doc&&<button onClick={()=>setDoc(null)} style={{background:"none",border:"none",color:C.err,fontSize:12,cursor:"pointer",marginTop:6,padding:0}}>Remove</button>}</div>}
