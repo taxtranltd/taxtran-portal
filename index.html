@@ -619,11 +619,6 @@ function App(){
             {label:"Sick Days",value:sick,sub:"all time"},
             {label:"No-pay Leave",value:noPayTotal>0?`${noPayTotal}d`:"—",sub:"approved & pending"},
           ].map(({label,value,sub})=>(
-          {[
-            {label:"AL Balance",value:sInfo?fmtBal(sInfo.alDays,sInfo.alHours):"—",sub:approvedAL>0?`${approvedAL}d approved`:"days remaining"},
-            {label:"Comp Leave",value:sInfo?`${sInfo.compDays||0}d`:"—",sub:"remaining"},
-            {label:"Sick Days",value:sick,sub:"all time"},
-          ].map(({label,value,sub})=>(
             <Card key={label} style={{textAlign:"center",padding:10}}>
               <div style={{fontSize:9,fontWeight:700,color:C.muted,letterSpacing:0.8,textTransform:"uppercase",marginBottom:6}}>{label}</div>
               <div style={{fontSize:22,fontWeight:800,color:C.txt,lineHeight:1}}>{value}</div>
