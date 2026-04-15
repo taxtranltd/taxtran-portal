@@ -1,34 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Taxtran Staff Portal</title>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { width: 100%; overflow-x: hidden; }
-    body { background: #fafafa; font-family: system-ui, -apple-system, sans-serif; -webkit-text-size-adjust: 100%; }
-    input, select, button, textarea { font-family: inherit; max-width: 100%; font-size: 16px; }
-    #root { width: 100%; max-width: 100vw; overflow-x: hidden; }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>Taxtran Staff Portal</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;overflow-x:hidden}
+body{background:#fafafa;font-family:system-ui,-apple-system,sans-serif;-webkit-text-size-adjust:100%}
+input,select,button,textarea{font-family:inherit;max-width:100%;font-size:16px}
+#root{width:100%;max-width:100vw;overflow-x:hidden}
+</style>
 </head>
 <body>
 <div id="root"></div>
 <script type="text/babel">
 
-const ADMIN_PIN = "0408";
-const GS_URL = "https://script.google.com/macros/s/AKfycbxVtudR5wZhIc2hcC4gpi87Rz6rcJm5vNqYgovj5hiIrwub_bEi0GbHka-F8IDa4hwO/exec";
-const EMAILJS_SERVICE = "service_iiy3p6r";
-const EMAILJS_TEMPLATE = "template_e2nfy9j";
-const EMAILJS_KEY = "JWVJd6SQK-NWdG-bQ";
-const NOTIFY_ALL = ["vchugani98@gmail.com","sunil@taxtranltd.com","regina@diccvi.com"];
-const NOTIFY_SHORT = ["vchugani98@gmail.com","regina@diccvi.com"];
+// ── CONSTANTS ──
+const ADMIN_PIN="0408";
+const GS_URL="https://script.google.com/macros/s/AKfycbxVtudR5wZhIc2hcC4gpi87Rz6rcJm5vNqYgovj5hiIrwub_bEi0GbHka-F8IDa4hwO/exec";
+const EJS_SVC="service_iiy3p6r",EJS_TPL="template_e2nfy9j",EJS_KEY="JWVJd6SQK-NWdG-bQ";
+const NOTIFY_ALL=["vchugani98@gmail.com","sunil@taxtranltd.com","regina@diccvi.com"];
+const NOTIFY_SHORT=["vchugani98@gmail.com","regina@diccvi.com"];
 
-const INITIAL_STAFF = {
-  "Hong Kong": [
+const COMP_RULES={
+  "Hong Kong":{noticeDays:3,windowWeeks:12,deadlineNote:"Comp leave accrued before 24 Feb 2025 must be used by 31 Dec 2026."},
+  "Taipei":{noticeDays:3,windowWeeks:8,deadlineNote:null},
+  "Yiwu":{noticeDays:3,windowWeeks:null,deadlineNote:"No expiry limit. Cash payout option available — speak to management."},
+};
+
+const INITIAL_STAFF={
+  "Hong Kong":[
     {name:"Vishal",alDays:15,alHours:0,compDays:0,email:"vishal@taxtranltd.com",startDate:"2025-01-08"},
     {name:"Catherine",alDays:23.5,alHours:0,compDays:0,email:"dept@taxtranltd.com",startDate:"2011-08-02"},
     {name:"SF",alDays:9,alHours:0,compDays:1,email:"sales12@taxtranltd.com",startDate:"2025-10-02"},
@@ -42,7 +47,7 @@ const INITIAL_STAFF = {
     {name:"Carol",alDays:20,alHours:0,compDays:0,email:"carolchugani@gmail.com",startDate:null},
     {name:"Sunil",alDays:20,alHours:0,compDays:0,email:"sunil@taxtranltd.com",startDate:null},
   ],
-  "Taipei": [
+  "Taipei":[
     {name:"Peter",alDays:26,alHours:4,compDays:0,email:"sales5@taxtranltd.com.tw",startDate:"2014-08-11"},
     {name:"Anna",alDays:8,alHours:7,compDays:0,email:"anna@taxtranltd.com.tw",startDate:"2023-10-12"},
     {name:"Mimi",alDays:8,alHours:5.5,compDays:0,email:"sales8@taxtranltd.com.tw",startDate:"2017-05-15"},
@@ -52,7 +57,7 @@ const INITIAL_STAFF = {
     {name:"Regina",alDays:50,alHours:5,compDays:0,email:"regina@diccvi.com",startDate:null},
     {name:"Adan",alDays:0,alHours:0,compDays:0,email:"sales4@taxtranltd.com.tw",startDate:"2026-04-13"},
   ],
-  "Yiwu": [
+  "Yiwu":[
     {name:"BK",alDays:9.5,alHours:0,compDays:3.5,email:"sales3@taxtranltd.com.cn",startDate:"2025-06-25"},
     {name:"Tina",alDays:35,alHours:0,compDays:0,email:"sales6@taxtranltd.com.cn",startDate:null},
     {name:"Jin",alDays:13,alHours:0,compDays:3,email:"sales9@taxtranltd.com.cn",startDate:"2024-10-17"},
@@ -60,199 +65,173 @@ const INITIAL_STAFF = {
   ],
 };
 
-const HOLIDAYS = {
+const HOLIDAYS={
   "Hong Kong":{"2026-01-01":"New Year's Day","2026-01-29":"LNY D1","2026-01-30":"LNY D2","2026-01-31":"LNY D3","2026-04-03":"Good Friday","2026-04-05":"Ching Ming","2026-04-06":"Easter Monday","2026-05-01":"Labour Day","2026-05-21":"Buddha's Birthday","2026-06-19":"Tuen Ng","2026-07-01":"HKSAR Day","2026-09-25":"Mid-Autumn","2026-10-01":"National Day","2026-10-13":"Chung Yeung","2026-12-25":"Christmas","2026-12-26":"Boxing Day"},
   "Taipei":{"2026-01-01":"New Year's Day","2026-01-28":"LNY Eve","2026-01-29":"LNY D1","2026-01-30":"LNY D2","2026-01-31":"LNY D3","2026-02-01":"LNY D4","2026-02-28":"Peace Memorial","2026-04-03":"Children's Day","2026-04-05":"Tomb Sweeping","2026-05-01":"Labour Day","2026-06-19":"Dragon Boat","2026-09-25":"Mid-Autumn","2026-10-10":"National Day","2026-12-25":"Christmas"},
-  "Yiwu":{"2026-01-01":"New Year's Day","2026-01-28":"Spring Festival D1","2026-01-29":"Spring Festival D2","2026-01-30":"Spring Festival D3","2026-01-31":"Spring Festival D4","2026-02-01":"Spring Festival D5","2026-02-02":"Spring Festival D6","2026-02-03":"Spring Festival D7","2026-04-05":"Qingming","2026-05-01":"Labour Day","2026-05-02":"Labour Day","2026-05-03":"Labour Day","2026-06-19":"Dragon Boat","2026-09-25":"Mid-Autumn","2026-10-01":"Golden Week D1","2026-10-02":"Golden Week D2","2026-10-03":"Golden Week D3","2026-10-04":"Golden Week D4","2026-10-05":"Golden Week D5","2026-10-06":"Golden Week D6","2026-10-07":"Golden Week D7"},
+  "Yiwu":{"2026-01-01":"New Year's Day","2026-01-28":"Spring D1","2026-01-29":"Spring D2","2026-01-30":"Spring D3","2026-01-31":"Spring D4","2026-02-01":"Spring D5","2026-02-02":"Spring D6","2026-02-03":"Spring D7","2026-04-05":"Qingming","2026-05-01":"Labour Day","2026-05-02":"Labour Day","2026-05-03":"Labour Day","2026-06-19":"Dragon Boat","2026-09-25":"Mid-Autumn","2026-10-01":"Golden Week D1","2026-10-02":"Golden Week D2","2026-10-03":"Golden Week D3","2026-10-04":"Golden Week D4","2026-10-05":"Golden Week D5","2026-10-06":"Golden Week D6","2026-10-07":"Golden Week D7"},
 };
 
-const LEAVE_TYPES = ["Annual Leave","Sick Leave","Other Leave"];
-const OFF_COLORS = {"Hong Kong":"#2563eb","Taipei":"#0891b2","Yiwu":"#b45309"};
-const HOL_COLORS = {"Hong Kong":"#7c3aed","Taipei":"#0d9488","Yiwu":"#ea580c"};
-const C = {bg:"#fafafa",surface:"#fff",border:"#e5e7eb",text:"#111827",muted:"#6b7280",subtle:"#f3f4f6",accent:"#111827",success:"#16a34a",danger:"#dc2626",warning:"#d97706"};
-const P = "12px";
+const LEAVE_TYPES=["Annual Leave","Sick Leave","Compensatory Leave","Other Leave"];
+const OFF_C={"Hong Kong":"#2563eb","Taipei":"#0891b2","Yiwu":"#b45309"};
+const HOL_C={"Hong Kong":"#7c3aed","Taipei":"#0d9488","Yiwu":"#ea580c"};
+const C={bg:"#fafafa",sur:"#fff",bdr:"#e5e7eb",txt:"#111827",muted:"#6b7280",sub:"#f3f4f6",acc:"#111827",ok:"#16a34a",err:"#dc2626",warn:"#d97706"};
+const P="12px";
 
-const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; };
-const addDays = (date, n) => { const d = new Date(date+"T00:00:00"); d.setDate(d.getDate()+n); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; };
-const fmt = d => new Date(d+"T00:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});
-const fmtBal = (d,h) => { let p=[]; if(d) p.push(`${d}d`); if(h) p.push(`${h}h`); return p.length ? p.join(" ") : "0"; };
-const daysBetween = (a,b) => Math.round((new Date(b)-new Date(a))/86400000)+1;
-const yearsOfService = (sd) => { if(!sd) return null; const y=(new Date()-new Date(sd))/(1000*60*60*24*365.25); return Math.floor(y*10)/10; };
-const checkNotice = (from,to) => {
-  const ahead = Math.round((new Date(from)-new Date(today()))/86400000);
-  const dur = daysBetween(from,to);
-  if(dur>=3&&ahead<14) return `3+ day applications require 2 weeks notice. You have ${ahead} day${ahead!==1?"s":""}.`;
-  if(dur<=2&&ahead<2) return "1–2 day applications require 48 hours notice.";
+// ── HELPERS ──
+const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;};
+const addDays=(dt,n)=>{const d=new Date(dt+"T00:00:00");d.setDate(d.getDate()+n);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;};
+const fmt=d=>new Date(d+"T00:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});
+const fmtBal=(d,h)=>{const p=[];if(d)p.push(`${d}d`);if(h)p.push(`${h}h`);return p.length?p.join(" "):"0";};
+const dBetween=(a,b)=>Math.round((new Date(b)-new Date(a))/86400000)+1;
+const yOS=sd=>{if(!sd)return null;return Math.floor((new Date()-new Date(sd))/(1000*60*60*24*365.25)*10)/10;};
+const chkNotice=(from,to,type,office)=>{
+  const ahead=Math.round((new Date(from)-new Date(today()))/86400000);
+  const dur=dBetween(from,to);
+  if(type==="Compensatory Leave"){const r=COMP_RULES[office]||COMP_RULES["Taipei"];if(ahead<r.noticeDays)return `Comp leave requires ${r.noticeDays} days notice. You have ${ahead} day${ahead!==1?"s":""}.`;return null;}
+  if(dur>=3&&ahead<14)return `3+ day applications require 2 weeks notice. You have ${ahead} day${ahead!==1?"s":""}.`;
+  if(dur<=2&&ahead<2)return "1–2 day applications require 48 hours notice.";
   return null;
 };
 
-const jsonp = url => new Promise((resolve,reject) => {
-  const cb = "cb_"+Math.random().toString(36).slice(2);
-  const s = document.createElement("script");
-  window[cb] = data => { resolve(data); delete window[cb]; s.remove(); };
-  s.onerror = () => { reject(new Error("JSONP failed")); delete window[cb]; s.remove(); };
-  s.src = url+"&callback="+cb;
+// ── NETWORK ──
+const jsonp=url=>new Promise((res,rej)=>{
+  const cb="cb_"+Math.random().toString(36).slice(2);
+  const s=document.createElement("script");
+  window[cb]=d=>{res(d);delete window[cb];s.remove();};
+  s.onerror=()=>{rej(new Error("JSONP failed"));delete window[cb];s.remove();};
+  s.src=url+"&callback="+cb;
   document.head.appendChild(s);
 });
-
-const gsRead = async sheet => {
-  try {
-    const data = await jsonp(`${GS_URL}?action=read&sheet=${sheet}`);
-    if(!data||data.length===0) return null;
-    const headers = data[0];
-    return data.slice(1).map(row => { const o={}; headers.forEach((h,i)=>o[h]=row[i]); return o; });
-  } catch(e) { return null; }
+const gsRead=async sheet=>{
+  try{const d=await jsonp(`${GS_URL}?action=read&sheet=${sheet}`);if(!d||!d.length)return null;const h=d[0];return d.slice(1).map(r=>{const o={};h.forEach((k,i)=>o[k]=r[i]);return o;});}catch(e){return null;}
 };
-
-const gsWrite = async (sheet, records) => {
-  try {
-    let data = [];
-    if(records&&records.length>0) { const h=Object.keys(records[0]); data=[h,...records.map(r=>h.map(k=>r[k]??""))]; }
-    await jsonp(`${GS_URL}?action=write&sheet=${sheet}&data=${encodeURIComponent(JSON.stringify(data))}`);
-  } catch(e) { console.error("GS write error:",e); }
+const gsWrite=async(sheet,records)=>{
+  try{let data=[];if(records&&records.length){const h=Object.keys(records[0]);data=[h,...records.map(r=>h.map(k=>r[k]??""))];}await jsonp(`${GS_URL}?action=write&sheet=${sheet}&data=${encodeURIComponent(JSON.stringify(data))}`);}catch(e){console.error("gsWrite error",e);}
 };
-
-const sendEmail = async (subject, message, recipients) => {
-  try {
-    await Promise.all(recipients.map(email =>
-      fetch("https://api.emailjs.com/api/v1.0/email/send", {
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ service_id:EMAILJS_SERVICE, template_id:EMAILJS_TEMPLATE, user_id:EMAILJS_KEY, template_params:{subject,message,to_email:email} })
-      })
-    ));
-  } catch(e) { console.error("Email error:",e); }
+const sendEmail=async(subject,message,to)=>{
+  try{await Promise.all(to.map(email=>fetch("https://api.emailjs.com/api/v1.0/email/send",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({service_id:EJS_SVC,template_id:EJS_TPL,user_id:EJS_KEY,template_params:{subject,message,to_email:email}})})));}catch(e){console.error("email error",e);}
 };
+const notify=(subject,message,days,custom)=>sendEmail(subject,message,custom||(days>2?NOTIFY_ALL:NOTIFY_SHORT));
 
-const sendNotification = (subject, message, days, custom) => sendEmail(subject, message, custom || (days>2 ? NOTIFY_ALL : NOTIFY_SHORT));
-
-const Tag = ({label,type="neutral"}) => {
-  const s = {neutral:{bg:C.subtle,c:C.muted},success:{bg:"#f0fdf4",c:C.success},danger:{bg:"#fef2f2",c:C.danger},warning:{bg:"#fffbeb",c:C.warning}}[type]||{bg:C.subtle,c:C.muted};
+// ── UI ATOMS ──
+const Tag=({label,type="neutral"})=>{
+  const s={neutral:{bg:C.sub,c:C.muted},success:{bg:"#f0fdf4",c:C.ok},danger:{bg:"#fef2f2",c:C.err},warning:{bg:"#fffbeb",c:C.warn}}[type]||{bg:C.sub,c:C.muted};
   return <span style={{background:s.bg,color:s.c,borderRadius:4,padding:"2px 8px",fontSize:11,fontWeight:600,display:"inline-block"}}>{label}</span>;
 };
-const Card = ({children,style={}}) => <div style={{background:C.surface,border:`1px solid ${C.border}`,borderRadius:10,padding:P,...style}}>{children}</div>;
-const Btn = ({children,onClick,variant="primary",style={}}) => {
-  const v = {primary:{background:C.accent,color:"#fff",border:"none"},secondary:{background:C.surface,color:C.text,border:`1px solid ${C.border}`},danger:{background:C.danger,color:"#fff",border:"none"},success:{background:C.success,color:"#fff",border:"none"},ghost:{background:"transparent",color:C.muted,border:"none"}}[variant]||{};
+const Card=({children,style={}})=><div style={{background:C.sur,border:`1px solid ${C.bdr}`,borderRadius:10,padding:P,...style}}>{children}</div>;
+const Btn=({children,onClick,variant="primary",style={}})=>{
+  const vs={primary:{background:C.acc,color:"#fff",border:"none"},secondary:{background:C.sur,color:C.txt,border:`1px solid ${C.bdr}`},danger:{background:C.err,color:"#fff",border:"none"},success:{background:C.ok,color:"#fff",border:"none"},ghost:{background:"transparent",color:C.muted,border:"none"}};
+  const v=vs[variant]||vs.primary;
   return <button onClick={onClick} style={{...v,padding:"10px 14px",borderRadius:8,fontSize:14,fontWeight:600,cursor:"pointer",...style}}>{children}</button>;
 };
-const Lbl = ({children}) => <div style={{fontSize:11,fontWeight:700,color:C.muted,letterSpacing:0.8,marginBottom:6,textTransform:"uppercase"}}>{children}</div>;
-const inp = {width:"100%",padding:"10px 12px",borderRadius:8,border:`1px solid ${C.border}`,fontSize:14,background:C.surface,color:C.text,boxSizing:"border-box"};
+const Lbl=({children})=><div style={{fontSize:11,fontWeight:700,color:C.muted,letterSpacing:0.8,marginBottom:6,textTransform:"uppercase"}}>{children}</div>;
+const inp={width:"100%",padding:"10px 12px",borderRadius:8,border:`1px solid ${C.bdr}`,fontSize:14,background:C.sur,color:C.txt,boxSizing:"border-box"};
 
 // ── LEAVE FORM ──
-function LeaveForm({selOffice,initialType,onSubmit,onBack}) {
-  const isSick = initialType==="Sick Leave";
-  const [leaveType,setLeaveType] = React.useState(initialType||"Annual Leave");
-  const [mode,setMode] = React.useState("single");
-  const [urgent,setUrgent] = React.useState(false);
-  const [note,setNote] = React.useState("");
-  const [docNote,setDocNote] = React.useState(null);
-  const [error,setError] = React.useState("");
-  const [done,setDone] = React.useState(false);
-  const getMin = () => isSick||urgent ? today() : addDays(today(),2);
-  const [from,setFrom] = React.useState(getMin);
-  const [to,setTo] = React.useState(getMin);
-  const hols = HOLIDAYS[selOffice]||{};
-  const setModeX = m => { setMode(m); const mn=getMin(); setFrom(mn); setTo(mn); };
-  const setFromX = v => { setFrom(v); if(to<v) setTo(v); };
-  const setToX = v => { setTo(v); if(leaveType==="Annual Leave"&&!urgent&&daysBetween(from,v)>=3){const m=addDays(today(),14);if(from<m)setFrom(m);} };
-  const toggleUrgent = () => { const n=!urgent; setUrgent(n); const mn=n?today():addDays(today(),2); setFrom(mn); setTo(mn); };
-  const realTo = mode==="single"?from:to;
-  const min = getMin();
-  const holCount = Array.from({length:daysBetween(from,realTo)},(_,i)=>addDays(from,i)).filter(d=>hols[d]).length;
-  const effDays = Math.max(0, daysBetween(from,realTo) - holCount);
-  const submit = () => {
-    setError("");
-    if(realTo<from){setError("End date must be after start date.");return;}
-    if(urgent&&!note.trim()){setError("A note is required for urgent leave.");return;}
-    if(leaveType==="Annual Leave"&&!urgent){const e=checkNotice(from,realTo);if(e){setError(e);return;}}
-    onSubmit({leaveType,from,to:realTo,days:effDays,note,doctorNote:docNote?.name||null,urgent});
-    setDone(true); setTimeout(()=>onBack(),1800);
+function LeaveForm({selOffice,initialType,onSubmit,onBack}){
+  const isSick=initialType==="Sick Leave";
+  const [type,setType]=React.useState(initialType||"Annual Leave");
+  const [mode,setMode]=React.useState("single");
+  const [urgent,setUrgent]=React.useState(false);
+  const [note,setNote]=React.useState("");
+  const [doc,setDoc]=React.useState(null);
+  const [err,setErr]=React.useState("");
+  const [done,setDone]=React.useState(false);
+  const getMin=()=>isSick||urgent?today():addDays(today(),2);
+  const [from,setFrom]=React.useState(getMin);
+  const [to,setTo]=React.useState(getMin);
+  const hols=HOLIDAYS[selOffice]||{};
+  const setModeX=m=>{setMode(m);const mn=getMin();setFrom(mn);setTo(mn);};
+  const setFromX=v=>{setFrom(v);if(to<v)setTo(v);};
+  const setToX=v=>{setTo(v);if(type==="Annual Leave"&&!urgent&&dBetween(from,v)>=3){const m=addDays(today(),14);if(from<m)setFrom(m);}};
+  const toggleU=()=>{const n=!urgent;setUrgent(n);const mn=n?today():addDays(today(),2);setFrom(mn);setTo(mn);};
+  const realTo=mode==="single"?from:to;
+  const mn=getMin();
+  const holCount=Array.from({length:dBetween(from,realTo)},(_,i)=>addDays(from,i)).filter(d=>hols[d]).length;
+  const effDays=Math.max(0,dBetween(from,realTo)-holCount);
+  const compRule=COMP_RULES[selOffice]||COMP_RULES["Taipei"];
+  const submit=()=>{
+    setErr("");
+    if(realTo<from){setErr("End date must be after start date.");return;}
+    if(urgent&&!note.trim()){setErr("A note is required for urgent leave.");return;}
+    if(type==="Annual Leave"&&!urgent){const e=chkNotice(from,realTo,type,selOffice);if(e){setErr(e);return;}}
+    if(type==="Compensatory Leave"){const e=chkNotice(from,realTo,type,selOffice);if(e){setErr(e);return;}}
+    onSubmit({leaveType:type,from,to:realTo,days:effDays,note,doctorNote:doc?.name||null,urgent});
+    setDone(true);setTimeout(()=>onBack(),1800);
   };
-  return (
+  return(
     <div style={{display:"flex",flexDirection:"column",gap:16}}>
-      {!isSick&&(<div><Lbl>Leave Type</Lbl><div style={{display:"flex",gap:6}}>{LEAVE_TYPES.filter(t=>t!=="Sick Leave").map(t=>(<button key={t} onClick={()=>{setLeaveType(t);const mn=urgent?today():addDays(today(),2);setFrom(mn);setTo(mn);}} style={{flex:1,padding:"9px 4px",borderRadius:8,fontSize:11,fontWeight:600,cursor:"pointer",border:`1px solid ${leaveType===t?C.accent:C.border}`,background:leaveType===t?C.accent:C.surface,color:leaveType===t?"#fff":C.text}}>{t}</button>))}</div></div>)}
-      {leaveType==="Annual Leave"&&(<div><Lbl>Urgency</Lbl><div style={{display:"flex",gap:6}}>{[["false","Standard"],["true","Urgent"]].map(([v,l])=>(<button key={v} onClick={toggleUrgent} style={{flex:1,padding:"9px",borderRadius:8,fontSize:13,fontWeight:600,cursor:"pointer",border:`1px solid ${String(urgent)===v?C.accent:C.border}`,background:String(urgent)===v?C.accent:C.surface,color:String(urgent)===v?"#fff":C.text}}>{l}</button>))}</div>{urgent&&<div style={{background:"#fffbeb",border:`1px solid #fde68a`,borderRadius:8,padding:"8px 12px",fontSize:12,color:C.warning,marginTop:8}}>Urgent leave bypasses notice rules. Note is mandatory.</div>}</div>)}
-      <div><Lbl>Duration</Lbl><div style={{display:"flex",gap:6}}>{[["single","Single Day"],["range","Date Range"]].map(([v,l])=>(<button key={v} onClick={()=>setModeX(v)} style={{flex:1,padding:"9px",borderRadius:8,fontSize:13,fontWeight:600,cursor:"pointer",border:`1px solid ${mode===v?C.accent:C.border}`,background:mode===v?C.accent:C.surface,color:mode===v?"#fff":C.text}}>{l}</button>))}</div></div>
-      {mode==="single"?(<div><Lbl>Date</Lbl><input type="date" value={from} min={min} onChange={e=>setFrom(e.target.value)} style={inp}/>{hols[from]&&<div style={{background:"#f0fdf4",border:`1px solid #bbf7d0`,borderRadius:8,padding:"7px 12px",fontSize:12,color:C.success,marginTop:6}}>{hols[from]} is a public holiday — won't count as leave.</div>}{!urgent&&!isSick&&<div style={{fontSize:11,color:C.muted,marginTop:5}}>Earliest: {fmt(min)}</div>}</div>):(
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-          <div><Lbl>From</Lbl><input type="date" value={from} min={min} onChange={e=>setFromX(e.target.value)} style={inp}/>{hols[from]&&<div style={{fontSize:11,color:C.success,marginTop:4}}>{hols[from]} — holiday</div>}</div>
-          <div><Lbl>To</Lbl><input type="date" value={to} min={from} onChange={e=>setToX(e.target.value)} style={inp}/>{hols[to]&&<div style={{fontSize:11,color:C.success,marginTop:4}}>{hols[to]} — holiday</div>}</div>
-        </div>
-      )}
-      {mode==="range"&&from&&to&&to>=from&&(<div style={{fontSize:13,color:C.muted,fontWeight:500}}>{daysBetween(from,to)} day{daysBetween(from,to)!==1?"s":""} selected{holCount>0&&<span style={{color:C.success}}> · {holCount} holiday{holCount>1?"s":""} excluded → <strong>{effDays}</strong> AL day{effDays!==1?"s":""} deducted</span>}</div>)}
-      {leaveType==="Annual Leave"&&!urgent&&(<div style={{background:C.subtle,borderRadius:8,padding:"10px 14px",fontSize:12,color:C.muted,lineHeight:1.6}}>Notice: 1–2 days → 48 hrs · 3+ days → 2 weeks</div>)}
-      {leaveType==="Compensatory Leave"&&(()=>{
-        const rule=COMP_RULES[selOffice]||COMP_RULES["Taipei"];
-        return (<div style={{display:"flex",flexDirection:"column",gap:6}}>
-          <div style={{background:C.subtle,borderRadius:8,padding:"10px 14px",fontSize:12,color:C.muted,lineHeight:1.6}}>
-            {rule.windowWeeks?`Must be taken within ${rule.windowWeeks} weeks of returning from business trip.`:"No expiry limit for comp leave."} Apply at least {rule.noticeDays} days in advance.
-          </div>
-          {rule.deadlineNote&&<div style={{background:"#fffbeb",border:`1px solid #fde68a`,borderRadius:8,padding:"10px 14px",fontSize:12,color:C.warning,lineHeight:1.6}}>{rule.deadlineNote}</div>}
-        </div>);
-      })()}
-      {isSick&&(<div><Lbl>Doctor's Note</Lbl><label style={{display:"block",border:`1px dashed ${docNote?C.success:C.border}`,borderRadius:8,padding:"14px",cursor:"pointer",background:docNote?"#f0fdf4":C.subtle,textAlign:"center"}}><input type="file" accept="image/*,application/pdf" onChange={e=>setDocNote(e.target.files[0]||null)} style={{display:"none"}}/>{docNote?(<div><div style={{fontSize:13,fontWeight:600,color:C.success}}>File attached</div><div style={{fontSize:12,color:C.muted}}>{docNote.name}</div></div>):(<div><div style={{fontSize:13,fontWeight:600,color:C.muted}}>Upload doctor's note</div><div style={{fontSize:11,color:C.muted}}>JPG, PNG or PDF</div></div>)}</label>{docNote&&<button onClick={()=>setDocNote(null)} style={{background:"none",border:"none",color:C.danger,fontSize:12,cursor:"pointer",marginTop:6,padding:0}}>Remove</button>}</div>)}
-      <div><Lbl>Note {urgent?"(required)":"(optional)"}</Lbl><input value={note} onChange={e=>setNote(e.target.value)} placeholder={urgent?"Explain reason for urgent leave...":"Add a note..."} style={{...inp,borderColor:urgent&&!note.trim()?C.warning:C.border}}/></div>
-      {error&&<div style={{background:"#fef2f2",border:`1px solid #fecaca`,borderRadius:8,padding:"10px 14px",fontSize:13,color:C.danger}}>{error}</div>}
-      <Btn onClick={submit} style={{width:"100%",padding:12,background:done?C.success:C.accent}}>{done?"Submitted":"Submit Application"}</Btn>
+      {!isSick&&<div><Lbl>Leave Type</Lbl><div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{LEAVE_TYPES.filter(t=>t!=="Sick Leave").map(t=><button key={t} onClick={()=>{setType(t);const mn2=urgent?today():addDays(today(),2);setFrom(mn2);setTo(mn2);}} style={{flex:"1 1 auto",padding:"9px 6px",borderRadius:8,fontSize:11,fontWeight:600,cursor:"pointer",border:`1px solid ${type===t?C.acc:C.bdr}`,background:type===t?C.acc:C.sur,color:type===t?"#fff":C.txt}}>{t}</button>)}</div></div>}
+      {type==="Annual Leave"&&<div><Lbl>Urgency</Lbl><div style={{display:"flex",gap:6}}>{[["false","Standard"],["true","Urgent"]].map(([v,l])=><button key={v} onClick={toggleU} style={{flex:1,padding:"9px",borderRadius:8,fontSize:13,fontWeight:600,cursor:"pointer",border:`1px solid ${String(urgent)===v?C.acc:C.bdr}`,background:String(urgent)===v?C.acc:C.sur,color:String(urgent)===v?"#fff":C.txt}}>{l}</button>)}</div>{urgent&&<div style={{background:"#fffbeb",border:`1px solid #fde68a`,borderRadius:8,padding:"8px 12px",fontSize:12,color:C.warn,marginTop:8}}>Urgent leave bypasses notice rules. Note is mandatory.</div>}</div>}
+      <div><Lbl>Duration</Lbl><div style={{display:"flex",gap:6}}>{[["single","Single Day"],["range","Date Range"]].map(([v,l])=><button key={v} onClick={()=>setModeX(v)} style={{flex:1,padding:"9px",borderRadius:8,fontSize:13,fontWeight:600,cursor:"pointer",border:`1px solid ${mode===v?C.acc:C.bdr}`,background:mode===v?C.acc:C.sur,color:mode===v?"#fff":C.txt}}>{l}</button>)}</div></div>
+      {mode==="single"?<div><Lbl>Date</Lbl><input type="date" value={from} min={mn} onChange={e=>setFrom(e.target.value)} style={inp}/>{hols[from]&&<div style={{background:"#f0fdf4",border:`1px solid #bbf7d0`,borderRadius:8,padding:"7px 12px",fontSize:12,color:C.ok,marginTop:6}}>{hols[from]} is a public holiday — won't count as leave.</div>}{!urgent&&!isSick&&<div style={{fontSize:11,color:C.muted,marginTop:5}}>Earliest: {fmt(mn)}</div>}</div>:<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}><div><Lbl>From</Lbl><input type="date" value={from} min={mn} onChange={e=>setFromX(e.target.value)} style={inp}/>{hols[from]&&<div style={{fontSize:11,color:C.ok,marginTop:4}}>{hols[from]}</div>}</div><div><Lbl>To</Lbl><input type="date" value={to} min={from} onChange={e=>setToX(e.target.value)} style={inp}/>{hols[to]&&<div style={{fontSize:11,color:C.ok,marginTop:4}}>{hols[to]}</div>}</div></div>}
+      {mode==="range"&&from&&to&&to>=from&&<div style={{fontSize:13,color:C.muted,fontWeight:500}}>{dBetween(from,to)} day{dBetween(from,to)!==1?"s":""} selected{holCount>0&&<span style={{color:C.ok}}> · {holCount} holiday{holCount>1?"s":""} excluded → <strong>{effDays}</strong> AL day{effDays!==1?"s":""} deducted</span>}</div>}
+      {type==="Annual Leave"&&!urgent&&<div style={{background:C.sub,borderRadius:8,padding:"10px 14px",fontSize:12,color:C.muted,lineHeight:1.6}}>Notice: 1–2 days → 48 hrs · 3+ days → 2 weeks</div>}
+      {type==="Compensatory Leave"&&<div style={{display:"flex",flexDirection:"column",gap:6}}><div style={{background:C.sub,borderRadius:8,padding:"10px 14px",fontSize:12,color:C.muted,lineHeight:1.6}}>{compRule.windowWeeks?`Must be taken within ${compRule.windowWeeks} weeks of returning from business trip.`:"No expiry limit."} Apply at least {compRule.noticeDays} days in advance.</div>{compRule.deadlineNote&&<div style={{background:"#fffbeb",border:`1px solid #fde68a`,borderRadius:8,padding:"10px 14px",fontSize:12,color:C.warn,lineHeight:1.6}}>{compRule.deadlineNote}</div>}</div>}
+      {isSick&&<div><Lbl>Doctor's Note</Lbl><label style={{display:"block",border:`1px dashed ${doc?C.ok:C.bdr}`,borderRadius:8,padding:"14px",cursor:"pointer",background:doc?"#f0fdf4":C.sub,textAlign:"center"}}><input type="file" accept="image/*,application/pdf" onChange={e=>setDoc(e.target.files[0]||null)} style={{display:"none"}}/>{doc?<div><div style={{fontSize:13,fontWeight:600,color:C.ok}}>File attached</div><div style={{fontSize:12,color:C.muted}}>{doc.name}</div></div>:<div><div style={{fontSize:13,fontWeight:600,color:C.muted}}>Upload doctor's note</div><div style={{fontSize:11,color:C.muted}}>JPG, PNG or PDF</div></div>}</label>{doc&&<button onClick={()=>setDoc(null)} style={{background:"none",border:"none",color:C.err,fontSize:12,cursor:"pointer",marginTop:6,padding:0}}>Remove</button>}</div>}
+      <div><Lbl>Note {urgent?"(required)":"(optional)"}</Lbl><input value={note} onChange={e=>setNote(e.target.value)} placeholder={urgent?"Explain reason for urgent leave...":"Add a note..."} style={{...inp,borderColor:urgent&&!note.trim()?C.warn:C.bdr}}/></div>
+      {err&&<div style={{background:"#fef2f2",border:`1px solid #fecaca`,borderRadius:8,padding:"10px 14px",fontSize:13,color:C.err}}>{err}</div>}
+      <Btn onClick={submit} style={{width:"100%",padding:12,background:done?C.ok:C.acc}}>{done?"Submitted":"Submit Application"}</Btn>
     </div>
   );
 }
 
 // ── CALENDAR ──
-function Calendar({leaveApps,officeFilter}) {
-  const now = new Date();
-  const [calMonth,setCalMonth] = React.useState(`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`);
-  const [sel,setSel] = React.useState(null);
-  const [hov,setHov] = React.useState(null);
-  const [yr,mo] = calMonth.split("-").map(Number);
-  const firstDay = new Date(yr,mo-1,1).getDay();
-  const daysInMonth = new Date(yr,mo,0).getDate();
-  const monthName = new Date(yr,mo-1,1).toLocaleString("en-GB",{month:"long",year:"numeric"});
-  const prev = () => { const d=new Date(yr,mo-2,1); setCalMonth(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`); setSel(null); };
-  const next = () => { const d=new Date(yr,mo,1); setCalMonth(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`); setSel(null); };
-  const getData = ds => {
-    const hols = Object.entries(HOLIDAYS).flatMap(([o,dates])=>dates[ds]?[{office:o,name:dates[ds]}]:[]).filter(h=>officeFilter==="All"||h.office===officeFilter);
-    const leaves = leaveApps.filter(a=>ds>=a.from&&ds<=a.to&&(officeFilter==="All"||a.office===officeFilter));
-    return {hols,leaves};
+function Calendar({leaveApps,officeFilter}){
+  const now=new Date();
+  const [cal,setCal]=React.useState(`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`);
+  const [sel,setSel]=React.useState(null);
+  const [hov,setHov]=React.useState(null);
+  const [yr,mo]=cal.split("-").map(Number);
+  const fd=new Date(yr,mo-1,1).getDay();
+  const dim=new Date(yr,mo,0).getDate();
+  const mName=new Date(yr,mo-1,1).toLocaleString("en-GB",{month:"long",year:"numeric"});
+  const prev=()=>{const d=new Date(yr,mo-2,1);setCal(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`);setSel(null);};
+  const next=()=>{const d=new Date(yr,mo,1);setCal(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`);setSel(null);};
+  const getData=ds=>{
+    const hols=Object.entries(HOLIDAYS).flatMap(([o,dates])=>dates[ds]?[{office:o,name:dates[ds]}]:[]).filter(h=>officeFilter==="All"||h.office===officeFilter);
+    const leaves=leaveApps.filter(a=>ds>=a.from&&ds<=a.to&&(officeFilter==="All"||a.office===officeFilter));
+    return{hols,leaves};
   };
-  const selData = sel?getData(sel):null;
-  return (
+  const sd=sel?getData(sel):null;
+  return(
     <div>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-        <button onClick={prev} style={{background:C.subtle,border:`1px solid ${C.border}`,borderRadius:6,padding:"6px 14px",cursor:"pointer",fontWeight:700,fontSize:16}}>‹</button>
-        <div style={{fontWeight:700,fontSize:14}}>{monthName}</div>
-        <button onClick={next} style={{background:C.subtle,border:`1px solid ${C.border}`,borderRadius:6,padding:"6px 14px",cursor:"pointer",fontWeight:700,fontSize:16}}>›</button>
+        <button onClick={prev} style={{background:C.sub,border:`1px solid ${C.bdr}`,borderRadius:6,padding:"6px 14px",cursor:"pointer",fontWeight:700,fontSize:16}}>‹</button>
+        <div style={{fontWeight:700,fontSize:14}}>{mName}</div>
+        <button onClick={next} style={{background:C.sub,border:`1px solid ${C.bdr}`,borderRadius:6,padding:"6px 14px",cursor:"pointer",fontWeight:700,fontSize:16}}>›</button>
       </div>
       <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:10}}>
-        {Object.entries(OFF_COLORS).map(([o,c])=><div key={o} style={{display:"flex",alignItems:"center",gap:4}}><div style={{width:8,height:8,borderRadius:2,background:c,flexShrink:0}}/><span style={{fontSize:10,color:C.muted}}>{o}</span></div>)}
-        {Object.entries(HOL_COLORS).map(([o,c])=><div key={o+"-h"} style={{display:"flex",alignItems:"center",gap:4}}><div style={{width:8,height:8,borderRadius:"50%",background:c,opacity:0.6,flexShrink:0}}/><span style={{fontSize:10,color:C.muted}}>{o} hol</span></div>)}
+        {Object.entries(OFF_C).map(([o,c])=><div key={o} style={{display:"flex",alignItems:"center",gap:4}}><div style={{width:8,height:8,borderRadius:2,background:c,flexShrink:0}}/><span style={{fontSize:10,color:C.muted}}>{o}</span></div>)}
+        {Object.entries(HOL_C).map(([o,c])=><div key={o+"-h"} style={{display:"flex",alignItems:"center",gap:4}}><div style={{width:8,height:8,borderRadius:"50%",background:c,opacity:0.6,flexShrink:0}}/><span style={{fontSize:10,color:C.muted}}>{o} hol</span></div>)}
       </div>
       <Card style={{padding:0,overflow:"hidden",marginBottom:sel?10:0,width:"100%"}}>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(7,minmax(0,1fr))",borderBottom:`1px solid ${C.border}`}}>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(7,minmax(0,1fr))",borderBottom:`1px solid ${C.bdr}`}}>
           {["S","M","T","W","T","F","S"].map((d,i)=><div key={i} style={{padding:"6px 0",textAlign:"center",fontSize:10,fontWeight:700,color:C.muted}}>{d}</div>)}
         </div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(7,minmax(0,1fr))"}}>
-          {Array.from({length:firstDay}).map((_,i)=><div key={`e${i}`} style={{borderRight:`1px solid ${C.border}`,borderBottom:`1px solid ${C.border}`,minHeight:38}}/>)}
-          {Array.from({length:daysInMonth}).map((_,i)=>{
-            const day=i+1, ds=`${calMonth}-${String(day).padStart(2,"0")}`;
-            const {hols,leaves}=getData(ds);
-            const approved=leaves.filter(l=>l.status==="approved"), pending=leaves.filter(l=>l.status==="pending");
-            const isToday=ds===today(), isSel=ds===sel;
-            const col=(firstDay+i)%7;
+          {Array.from({length:fd}).map((_,i)=><div key={`e${i}`} style={{borderRight:`1px solid ${C.bdr}`,borderBottom:`1px solid ${C.bdr}`,minHeight:38}}/>)}
+          {Array.from({length:dim}).map((_,i)=>{
+            const day=i+1,ds=`${cal}-${String(day).padStart(2,"0")}`;
+            const{hols,leaves}=getData(ds);
+            const app=leaves.filter(l=>l.status==="approved"),pend=leaves.filter(l=>l.status==="pending");
+            const isT=ds===today(),isSel=ds===sel;
+            const col=(fd+i)%7;
             const tip=col<=1?{left:0,transform:"none"}:col>=5?{right:0,left:"auto",transform:"none"}:{left:"50%",transform:"translateX(-50%)"};
-            return (
+            return(
               <div key={day} onClick={()=>setSel(isSel?null:ds)} onMouseEnter={()=>setHov(ds)} onMouseLeave={()=>setHov(null)}
-                style={{borderRight:`1px solid ${C.border}`,borderBottom:`1px solid ${C.border}`,minHeight:38,padding:"2px",cursor:"pointer",background:isSel?C.subtle:C.surface,position:"relative",overflow:"hidden"}}>
-                <div style={{fontSize:10,fontWeight:isToday?800:500,color:isToday?"#fff":C.text,background:isToday?C.accent:"transparent",borderRadius:"50%",width:18,height:18,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 2px"}}>{day}</div>
+                style={{borderRight:`1px solid ${C.bdr}`,borderBottom:`1px solid ${C.bdr}`,minHeight:38,padding:"2px",cursor:"pointer",background:isSel?C.sub:C.sur,position:"relative",overflow:"hidden"}}>
+                <div style={{fontSize:10,fontWeight:isT?800:500,color:isT?"#fff":C.txt,background:isT?C.acc:"transparent",borderRadius:"50%",width:18,height:18,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 2px"}}>{day}</div>
                 <div style={{display:"flex",flexWrap:"wrap",gap:1,justifyContent:"center"}}>
-                  {hols.map((h,idx)=><div key={`h${idx}`} style={{width:5,height:5,borderRadius:"50%",background:HOL_COLORS[h.office]||"#888",opacity:0.7}}/>)}
-                  {approved.map((l,idx)=><div key={`a${idx}`} style={{width:5,height:5,borderRadius:1,background:OFF_COLORS[l.office]||"#888"}}/>)}
-                  {pending.map((l,idx)=><div key={`p${idx}`} style={{width:5,height:5,borderRadius:1,background:"transparent",border:`1px solid ${OFF_COLORS[l.office]||"#888"}`}}/>)}
+                  {hols.map((h,idx)=><div key={`h${idx}`} style={{width:5,height:5,borderRadius:"50%",background:HOL_C[h.office]||"#888",opacity:0.7}}/>)}
+                  {app.map((l,idx)=><div key={`a${idx}`} style={{width:5,height:5,borderRadius:1,background:OFF_C[l.office]||"#888"}}/>)}
+                  {pend.map((l,idx)=><div key={`p${idx}`} style={{width:5,height:5,borderRadius:1,background:"transparent",border:`1px solid ${OFF_C[l.office]||"#888"}`}}/>)}
                 </div>
-                {hov===ds&&(hols.length>0||approved.length>0||pending.length>0)&&(
-                  <div style={{position:"absolute",zIndex:99,top:"100%",...tip,background:C.accent,color:"#fff",borderRadius:6,padding:"8px 10px",fontSize:11,whiteSpace:"nowrap",pointerEvents:"none",boxShadow:"0 4px 12px rgba(0,0,0,0.15)",minWidth:130}}>
+                {hov===ds&&(hols.length>0||app.length>0||pend.length>0)&&(
+                  <div style={{position:"absolute",zIndex:99,top:"100%",...tip,background:C.acc,color:"#fff",borderRadius:6,padding:"8px 10px",fontSize:11,whiteSpace:"nowrap",pointerEvents:"none",boxShadow:"0 4px 12px rgba(0,0,0,0.15)",minWidth:130}}>
                     {hols.map((h,i)=><div key={i} style={{marginBottom:2}}>· {h.name}</div>)}
-                    {approved.map((l,i)=><div key={i} style={{marginBottom:2}}>· {l.name} — {l.leaveType}</div>)}
-                    {pending.map((l,i)=><div key={i} style={{marginBottom:2}}>· {l.name} — pending</div>)}
+                    {app.map((l,i)=><div key={i} style={{marginBottom:2}}>· {l.name} — {l.leaveType}</div>)}
+                    {pend.map((l,i)=><div key={i} style={{marginBottom:2}}>· {l.name} — pending</div>)}
                   </div>
                 )}
               </div>
@@ -260,12 +239,12 @@ function Calendar({leaveApps,officeFilter}) {
           })}
         </div>
       </Card>
-      {sel&&selData&&(
+      {sel&&sd&&(
         <Card>
           <div style={{fontWeight:700,fontSize:13,marginBottom:10}}>{fmt(sel)}</div>
-          {selData.hols.length===0&&selData.leaves.length===0&&<div style={{fontSize:13,color:C.muted}}>No leave or holidays.</div>}
-          {selData.hols.length>0&&(<div style={{marginBottom:selData.leaves.length>0?12:0}}><div style={{fontSize:11,fontWeight:700,color:C.muted,textTransform:"uppercase",letterSpacing:0.5,marginBottom:6}}>Public Holidays</div>{selData.hols.map((h,i)=><div key={i} style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}><div style={{width:7,height:7,borderRadius:"50%",background:HOL_COLORS[h.office],flexShrink:0}}/><span style={{fontSize:13}}>{h.name} — {h.office}</span></div>)}</div>)}
-          {selData.leaves.length>0&&(<div><div style={{fontSize:11,fontWeight:700,color:C.muted,textTransform:"uppercase",letterSpacing:0.5,marginBottom:6}}>Staff Leave</div>{selData.leaves.map((l,i)=><div key={i} style={{display:"flex",alignItems:"center",gap:8,marginBottom:4,flexWrap:"wrap"}}><div style={{width:7,height:7,borderRadius:l.status==="pending"?0:2,background:l.status==="pending"?"transparent":OFF_COLORS[l.office],border:l.status==="pending"?`1px solid ${OFF_COLORS[l.office]}`:"none",flexShrink:0}}/><span style={{fontSize:13,fontWeight:600}}>{l.name}</span><span style={{fontSize:12,color:C.muted}}>{l.leaveType}</span><Tag label={l.status} type={l.status==="approved"?"success":l.status==="rejected"?"danger":"warning"}/></div>)}</div>)}
+          {sd.hols.length===0&&sd.leaves.length===0&&<div style={{fontSize:13,color:C.muted}}>No leave or holidays.</div>}
+          {sd.hols.length>0&&<div style={{marginBottom:sd.leaves.length>0?12:0}}><div style={{fontSize:11,fontWeight:700,color:C.muted,textTransform:"uppercase",letterSpacing:0.5,marginBottom:6}}>Public Holidays</div>{sd.hols.map((h,i)=><div key={i} style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}><div style={{width:7,height:7,borderRadius:"50%",background:HOL_C[h.office],flexShrink:0}}/><span style={{fontSize:13}}>{h.name} — {h.office}</span></div>)}</div>}
+          {sd.leaves.length>0&&<div><div style={{fontSize:11,fontWeight:700,color:C.muted,textTransform:"uppercase",letterSpacing:0.5,marginBottom:6}}>Staff Leave</div>{sd.leaves.map((l,i)=><div key={i} style={{display:"flex",alignItems:"center",gap:8,marginBottom:4,flexWrap:"wrap"}}><div style={{width:7,height:7,borderRadius:l.status==="pending"?0:2,background:l.status==="pending"?"transparent":OFF_C[l.office],border:l.status==="pending"?`1px solid ${OFF_C[l.office]}`:"none",flexShrink:0}}/><span style={{fontSize:13,fontWeight:600}}>{l.name}</span><span style={{fontSize:12,color:C.muted}}>{l.leaveType}</span><Tag label={l.status} type={l.status==="approved"?"success":l.status==="rejected"?"danger":"warning"}/></div>)}</div>}
         </Card>
       )}
     </div>
@@ -273,57 +252,53 @@ function Calendar({leaveApps,officeFilter}) {
 }
 
 // ── SETTINGS ──
-function Settings({attendance,saveAtt,leaveApps,saveLeave,pins,savePins,staffData,saveStaff}) {
+function Settings({attendance,saveAtt,leaveApps,saveLeave,pins,savePins,staffData,saveStaff}){
   const [rOff,setROff]=React.useState("Hong Kong");
   const [rName,setRName]=React.useState("");
   const [rTypes,setRTypes]=React.useState({att:true,leave:false,pin:false});
   const [rMsg,setRMsg]=React.useState("");
-  const [balOff,setBalOff]=React.useState("Hong Kong");
-  const [balName,setBalName]=React.useState("");
-  const [balDays,setBalDays]=React.useState("");
-  const [balHrs,setBalHrs]=React.useState("");
-  const [balComp,setBalComp]=React.useState("");
-  const [balMsg,setBalMsg]=React.useState("");
+  const [bOff,setBOff]=React.useState("Hong Kong");
+  const [bName,setBName]=React.useState("");
+  const [bAL,setBAL]=React.useState("");
+  const [bHrs,setBHrs]=React.useState("");
+  const [bComp,setBComp]=React.useState("");
+  const [bMsg,setBMsg]=React.useState("");
 
-  const doReset = () => {
+  const doReset=()=>{
     if(!rName){setRMsg("Please select a staff member.");return;}
     const key=`${rOff}__${rName}`;
     if(rTypes.att){const a={...attendance};Object.keys(a).forEach(k=>{if(k.startsWith(`${key}__`))delete a[k];});saveAtt(a);}
     if(rTypes.leave){saveLeave(leaveApps.filter(a=>!(a.office===rOff&&a.name===rName)));}
     if(rTypes.pin){const p={...pins};delete p[key];savePins(p);}
-    const what=[rTypes.att?"attendance":null,rTypes.leave?"leave applications":null,rTypes.pin?"PIN":null].filter(Boolean).join(", ");
-    setRMsg(`${rName}'s ${what} cleared.`);setTimeout(()=>setRMsg(""),3000);setRName("");
+    const w=[rTypes.att?"attendance":null,rTypes.leave?"leave":null,rTypes.pin?"PIN":null].filter(Boolean).join(", ");
+    setRMsg(`${rName}'s ${w} cleared.`);setTimeout(()=>setRMsg(""),3000);setRName("");
   };
 
-  const doEditBal = () => {
-    if(!balName){setBalMsg("Please select a staff member.");return;}
-    const days=parseFloat(balDays),hrs=parseFloat(balHrs)||0,comp=parseFloat(balComp)||0;
-    if(isNaN(days)||days<0){setBalMsg("Enter a valid number of days.");return;}
-    const ns={...staffData};const sl=[...ns[balOff]];const idx=sl.findIndex(s=>s.name===balName);
-    if(idx>=0){sl[idx]={...sl[idx],alDays:days,alHours:hrs,compDays:comp};ns[balOff]=sl;saveStaff(ns);}
-    setBalMsg(`${balName}'s balances updated.`);
-    setTimeout(()=>setBalMsg(""),3000);setBalName("");setBalDays("");setBalHrs("");setBalComp("");
+  const doBal=()=>{
+    if(!bName){setBMsg("Please select a staff member.");return;}
+    const days=parseFloat(bAL),hrs=parseFloat(bHrs)||0,comp=parseFloat(bComp)||0;
+    if(isNaN(days)||days<0){setBMsg("Enter valid days.");return;}
+    const ns={...staffData};const sl=[...ns[bOff]];const idx=sl.findIndex(s=>s.name===bName);
+    if(idx>=0){sl[idx]={...sl[idx],alDays:days,alHours:hrs,compDays:comp};ns[bOff]=sl;saveStaff(ns);}
+    setBMsg(`${bName}'s balances updated.`);setTimeout(()=>setBMsg(""),3000);setBName("");setBAL("");setBHrs("");setBComp("");
   };
 
-  const doInit = async () => {
-    await saveStaff(JSON.parse(JSON.stringify(INITIAL_STAFF)));
-    setBalMsg("Staff data initialized.");setTimeout(()=>setBalMsg(""),3000);
-  };
+  const doInit=async()=>{await saveStaff(JSON.parse(JSON.stringify(INITIAL_STAFF)));setBMsg("Staff data initialized.");setTimeout(()=>setBMsg(""),3000);};
 
-  return (
+  return(
     <div style={{maxWidth:480}}>
-      <div style={{fontWeight:700,fontSize:13,color:C.muted,textTransform:"uppercase",letterSpacing:0.5,marginBottom:12}}>Edit AL Balance</div>
+      <div style={{fontWeight:700,fontSize:13,color:C.muted,textTransform:"uppercase",letterSpacing:0.5,marginBottom:12}}>Edit Balances</div>
       <Card style={{marginBottom:20}}>
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
-          <div><Lbl>Office</Lbl><select value={balOff} onChange={e=>{setBalOff(e.target.value);setBalName("");}} style={inp}>{Object.keys(INITIAL_STAFF).map(o=><option key={o}>{o}</option>)}</select></div>
-          <div><Lbl>Staff Member</Lbl><select value={balName} onChange={e=>setBalName(e.target.value)} style={inp}><option value="">Select</option>{(INITIAL_STAFF[balOff]||[]).map(s=><option key={s.name}>{s.name}</option>)}</select></div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
-            <div><Lbl>AL Days</Lbl><input type="number" min="0" step="0.5" value={balDays} onChange={e=>setBalDays(e.target.value)} placeholder="e.g. 12.5" style={inp}/></div>
-            <div><Lbl>AL Hours</Lbl><input type="number" min="0" max="7" step="0.5" value={balHrs} onChange={e=>setBalHrs(e.target.value)} placeholder="e.g. 4" style={inp}/></div>
-            <div><Lbl>Comp Days</Lbl><input type="number" min="0" step="0.5" value={balComp} onChange={e=>setBalComp(e.target.value)} placeholder="e.g. 3" style={inp}/></div>
+          <div><Lbl>Office</Lbl><select value={bOff} onChange={e=>{setBOff(e.target.value);setBName("");}} style={inp}>{Object.keys(INITIAL_STAFF).map(o=><option key={o}>{o}</option>)}</select></div>
+          <div><Lbl>Staff Member</Lbl><select value={bName} onChange={e=>setBName(e.target.value)} style={inp}><option value="">Select</option>{(INITIAL_STAFF[bOff]||[]).map(s=><option key={s.name}>{s.name}</option>)}</select></div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
+            <div><Lbl>AL Days</Lbl><input type="number" min="0" step="0.5" value={bAL} onChange={e=>setBAL(e.target.value)} placeholder="0" style={inp}/></div>
+            <div><Lbl>AL Hours</Lbl><input type="number" min="0" max="7" step="0.5" value={bHrs} onChange={e=>setBHrs(e.target.value)} placeholder="0" style={inp}/></div>
+            <div><Lbl>Comp Days</Lbl><input type="number" min="0" step="0.5" value={bComp} onChange={e=>setBComp(e.target.value)} placeholder="0" style={inp}/></div>
           </div>
-          {balMsg&&<div style={{background:"#f0fdf4",border:`1px solid #bbf7d0`,borderRadius:8,padding:"10px 14px",fontSize:13,color:C.success}}>{balMsg}</div>}
-          <button onClick={doEditBal} style={{background:C.accent,color:"#fff",border:"none",borderRadius:8,padding:"11px",fontSize:14,fontWeight:700,cursor:"pointer"}}>Update Balance</button>
+          {bMsg&&<div style={{background:"#f0fdf4",border:`1px solid #bbf7d0`,borderRadius:8,padding:"10px 14px",fontSize:13,color:C.ok}}>{bMsg}</div>}
+          <button onClick={doBal} style={{background:C.acc,color:"#fff",border:"none",borderRadius:8,padding:"11px",fontSize:14,fontWeight:700,cursor:"pointer"}}>Update Balances</button>
         </div>
       </Card>
 
@@ -332,304 +307,302 @@ function Settings({attendance,saveAtt,leaveApps,saveLeave,pins,savePins,staffDat
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
           <div><Lbl>Office</Lbl><select value={rOff} onChange={e=>{setROff(e.target.value);setRName("");}} style={inp}>{Object.keys(INITIAL_STAFF).map(o=><option key={o}>{o}</option>)}</select></div>
           <div><Lbl>Staff Member</Lbl><select value={rName} onChange={e=>setRName(e.target.value)} style={inp}><option value="">Select</option>{(INITIAL_STAFF[rOff]||[]).map(s=><option key={s.name}>{s.name}</option>)}</select></div>
-          <div><Lbl>What to reset</Lbl>
-            <div style={{display:"flex",flexDirection:"column",gap:8}}>
-              {[["att","Attendance records"],["leave","Leave applications"],["pin","PIN"]].map(([k,l])=>(
-                <label key={k} style={{display:"flex",alignItems:"center",gap:10,cursor:"pointer",fontSize:14}}>
-                  <input type="checkbox" checked={rTypes[k]} onChange={()=>setRTypes(p=>({...p,[k]:!p[k]}))} style={{width:16,height:16}}/>{l}
-                </label>
-              ))}
-            </div>
-          </div>
-          {rMsg&&<div style={{background:"#f0fdf4",border:`1px solid #bbf7d0`,borderRadius:8,padding:"10px 14px",fontSize:13,color:C.success}}>{rMsg}</div>}
-          <button onClick={doReset} style={{background:C.danger,color:"#fff",border:"none",borderRadius:8,padding:"11px",fontSize:14,fontWeight:700,cursor:"pointer"}}>Reset Selected Data</button>
+          <div><Lbl>What to reset</Lbl><div style={{display:"flex",flexDirection:"column",gap:8}}>{[["att","Attendance"],["leave","Leave applications"],["pin","PIN"]].map(([k,l])=><label key={k} style={{display:"flex",alignItems:"center",gap:10,cursor:"pointer",fontSize:14}}><input type="checkbox" checked={rTypes[k]} onChange={()=>setRTypes(p=>({...p,[k]:!p[k]}))} style={{width:16,height:16}}/>{l}</label>)}</div></div>
+          {rMsg&&<div style={{background:"#f0fdf4",border:`1px solid #bbf7d0`,borderRadius:8,padding:"10px 14px",fontSize:13,color:C.ok}}>{rMsg}</div>}
+          <button onClick={doReset} style={{background:C.err,color:"#fff",border:"none",borderRadius:8,padding:"11px",fontSize:14,fontWeight:700,cursor:"pointer"}}>Reset Selected Data</button>
         </div>
       </Card>
 
       <div style={{fontWeight:700,fontSize:13,color:C.muted,textTransform:"uppercase",letterSpacing:0.5,marginBottom:12}}>Initialize Data</div>
       <Card style={{marginBottom:20}}>
-        <div style={{fontSize:13,color:C.muted,marginBottom:12}}>First time setup — writes all staff and opening AL balances to the database. Run once before rollout.</div>
-        <button onClick={doInit} style={{background:C.success,color:"#fff",border:"none",borderRadius:8,padding:"11px",fontSize:14,fontWeight:700,cursor:"pointer",width:"100%"}}>Initialize Staff Data</button>
+        <div style={{fontSize:13,color:C.muted,marginBottom:12}}>First time setup — writes all staff and opening balances to the database. Run once before rollout.</div>
+        <button onClick={doInit} style={{background:C.ok,color:"#fff",border:"none",borderRadius:8,padding:"11px",fontSize:14,fontWeight:700,cursor:"pointer",width:"100%"}}>Initialize Staff Data</button>
       </Card>
 
       <div style={{fontWeight:700,fontSize:13,color:C.muted,textTransform:"uppercase",letterSpacing:0.5,marginBottom:12}}>Staff List</div>
       <Card>
         <div style={{fontSize:13,color:C.muted,marginBottom:12}}>If new staff aren't showing on the login screen, tap below to sync.</div>
-        <button onClick={async()=>{await gsWrite("staff",[]);window.location.reload();}} style={{background:C.accent,color:"#fff",border:"none",borderRadius:8,padding:"11px",fontSize:14,fontWeight:700,cursor:"pointer",width:"100%"}}>Sync Staff List</button>
+        <button onClick={async()=>{await gsWrite("staff",[]);window.location.reload();}} style={{background:C.acc,color:"#fff",border:"none",borderRadius:8,padding:"11px",fontSize:14,fontWeight:700,cursor:"pointer",width:"100%"}}>Sync Staff List</button>
       </Card>
     </div>
   );
 }
 
 // ── MAIN APP ──
-function App() {
+function App(){
   const [screen,setScreen]=React.useState("login");
-  const [selOffice,setSelOffice]=React.useState("");
+  const [selOff,setSelOff]=React.useState("");
   const [selName,setSelName]=React.useState("");
-  const [pinInput,setPinInput]=React.useState("");
-  const [pinError,setPinError]=React.useState("");
+  const [pinIn,setPinIn]=React.useState("");
+  const [pinErr,setPinErr]=React.useState("");
   const [isFirst,setIsFirst]=React.useState(false);
   const [showSel,setShowSel]=React.useState(false);
   const [newPin,setNewPin]=React.useState("");
   const [confPin,setConfPin]=React.useState("");
   const [pins,setPins]=React.useState({});
-  const [attendance,setAttendance]=React.useState({});
-  const [leaveApps,setLeaveApps]=React.useState([]);
-  const [staffData,setStaffData]=React.useState(INITIAL_STAFF);
+  const [att,setAtt]=React.useState({});
+  const [leaves,setLeaves]=React.useState([]);
+  const [staff,setStaff]=React.useState(INITIAL_STAFF);
   const [view,setView]=React.useState("home");
-  const [adminTab,setAdminTab]=React.useState("calendar");
-  const [adminOff,setAdminOff]=React.useState("All");
-  const [adminDate,setAdminDate]=React.useState(today());
+  const [aTab,setATab]=React.useState("calendar");
+  const [aOff,setAOff]=React.useState("All");
+  const [aDate,setADate]=React.useState(today());
   const [editApp,setEditApp]=React.useState(null);
-  const [rejectModal,setRejectModal]=React.useState(null);
-  const [rejectReason,setRejectReason]=React.useState("");
+  const [rejModal,setRejModal]=React.useState(null);
+  const [rejReason,setRejReason]=React.useState("");
   const [loading,setLoading]=React.useState(true);
+  const [bizTrip,setBizTrip]=React.useState(false);
 
   React.useEffect(()=>{
     (async()=>{
       setLoading(true);
-      try {
-        const [pd,ad,ld,sd] = await Promise.all([gsRead("pins"),gsRead("attendance"),gsRead("leave"),gsRead("staff")]);
+      try{
+        const[pd,ad,ld,sd]=await Promise.all([gsRead("pins"),gsRead("attendance"),gsRead("leave"),gsRead("staff")]);
         if(pd){const p={};pd.forEach(r=>p[r.key]=String(r.value).replace(/^pin_/,""));setPins(p);}
-        if(ad){const a={};ad.forEach(r=>a[r.key]=JSON.parse(r.value));setAttendance(a);}
-        if(ld) setLeaveApps(ld.map(r=>({...r,days:Number(r.days),urgent:r.urgent==="true"})));
-        if(sd){const s={};sd.forEach(r=>{if(!s[r.office])s[r.office]=[];s[r.office].push({name:r.name,alDays:Number(r.alDays)||0,alHours:Number(r.alHours)||0,compDays:Number(r.compDays)||0,email:r.email||null,startDate:r.startDate||null});});if(Object.keys(s).length>0)setStaffData(s);}
+        if(ad){const a={};ad.forEach(r=>a[r.key]=JSON.parse(r.value));setAtt(a);}
+        if(ld)setLeaves(ld.map(r=>({...r,days:Number(r.days),urgent:r.urgent==="true"})));
+        if(sd){const s={};sd.forEach(r=>{if(!s[r.office])s[r.office]=[];s[r.office].push({name:r.name,alDays:Number(r.alDays)||0,alHours:Number(r.alHours)||0,compDays:Number(r.compDays)||0,email:r.email||null,startDate:r.startDate||null});});if(Object.keys(s).length>0)setStaff(s);}
       }catch(e){}
       setLoading(false);
     })();
   },[]);
 
-  const savePins = async p => { setPins(p); await gsWrite("pins",Object.entries(p).map(([key,value])=>({key,value:"pin_"+value}))); };
-  const saveAtt  = async a => { setAttendance(a); await gsWrite("attendance",Object.entries(a).map(([key,value])=>({key,value:JSON.stringify(value)}))); };
-  const saveLeave= async l => { setLeaveApps(l); await gsWrite("leave",l); };
-  const saveStaff= async s => { setStaffData(s); await gsWrite("staff",Object.entries(s).flatMap(([office,ms])=>ms.map(m=>({office,...m})))); };
+  const savePins=async p=>{setPins(p);await gsWrite("pins",Object.entries(p).map(([k,v])=>({key:k,value:"pin_"+v})));};
+  const saveAtt=async a=>{setAtt(a);await gsWrite("attendance",Object.entries(a).map(([k,v])=>({key:k,value:JSON.stringify(v)})));};
+  const saveLeaves=async l=>{setLeaves(l);await gsWrite("leave",l);};
+  const saveStaff=async s=>{setStaff(s);await gsWrite("staff",Object.entries(s).flatMap(([office,ms])=>ms.map(m=>({office,...m}))));};
 
-  const allStaff = Object.entries(staffData).flatMap(([o,ms])=>ms.map(m=>({...m,office:o})));
-  const getEmail = (office,name) => INITIAL_STAFF[office]?.find(s=>s.name===name)?.email||null;
+  const allStaff=Object.entries(staff).flatMap(([o,ms])=>ms.map(m=>({...m,office:o})));
+  const getEmail=(office,name)=>INITIAL_STAFF[office]?.find(s=>s.name===name)?.email||null;
 
-  const approveLeave = id => {
-    const app=leaveApps.find(a=>a.id===id);if(!app)return;
-    saveLeave(leaveApps.map(a=>a.id===id?{...a,status:"approved"}:a));
+  const approveLeave=id=>{
+    const app=leaves.find(a=>a.id===id);if(!app)return;
+    saveLeaves(leaves.map(a=>a.id===id?{...a,status:"approved"}:a));
     if(app.leaveType==="Annual Leave"||app.leaveType==="Compensatory Leave"){
-      const ns={...staffData};const sl=[...ns[app.office]];const idx=sl.findIndex(s=>s.name===app.name);
+      const ns={...staff};const sl=[...ns[app.office]];const idx=sl.findIndex(s=>s.name===app.name);
       if(idx>=0){
         const cur=sl[idx];
-        if(app.leaveType==="Annual Leave"){
-          const th=(cur.alDays*8)+(cur.alHours||0)-(app.days*8);
-          sl[idx]={...cur,alDays:Math.max(0,Math.floor(th/8)),alHours:Math.max(0,th%8)};
-        } else {
-          sl[idx]={...cur,compDays:Math.max(0,(cur.compDays||0)-app.days)};
-        }
+        if(app.leaveType==="Annual Leave"){const th=(cur.alDays*8)+(cur.alHours||0)-(app.days*8);sl[idx]={...cur,alDays:Math.max(0,Math.floor(th/8)),alHours:Math.max(0,th%8)};}
+        else{sl[idx]={...cur,compDays:Math.max(0,(cur.compDays||0)-app.days)};}
         ns[app.office]=sl;saveStaff(ns);
       }
     }
-    const email=getEmail(app.office,app.name);
-    if(email) sendEmail(`Leave Approved — ${fmt(app.from)}${app.from!==app.to?` to ${fmt(app.to)}`:""}`,`Hi ${app.name},\n\nYour ${app.leaveType} has been approved.\n\nDates: ${fmt(app.from)}${app.from!==app.to?` to ${fmt(app.to)}`:""}\nDays: ${app.days}\n\nTaxtran HR`,[email]);
+    const em=getEmail(app.office,app.name);
+    if(em)sendEmail(`Leave Approved — ${fmt(app.from)}${app.from!==app.to?` to ${fmt(app.to)}`:""}`,`Hi ${app.name},\n\nYour ${app.leaveType} has been approved.\n\nDates: ${fmt(app.from)}${app.from!==app.to?` to ${fmt(app.to)}`:""}\nDays: ${app.days}\n\nTaxtran HR`,[em]);
   };
 
-  const rejectLeave = (id,reason) => {
-    const app=leaveApps.find(a=>a.id===id);
-    saveLeave(leaveApps.map(a=>a.id===id?{...a,status:"rejected",rejectReason:reason||null}:a));
-    if(app){const email=getEmail(app.office,app.name);if(email) sendEmail(`Leave Unsuccessful — ${fmt(app.from)}${app.from!==app.to?` to ${fmt(app.to)}`:""}`,`Hi ${app.name},\n\nYour ${app.leaveType} application was unsuccessful.\n\nDates: ${fmt(app.from)}${app.from!==app.to?` to ${fmt(app.to)}`:""}\n${reason?`Reason: ${reason}\n`:""}\nTaxtran HR`,[email]);}
-    setRejectModal(null);setRejectReason("");
+  const rejectLeave=(id,reason)=>{
+    const app=leaves.find(a=>a.id===id);
+    saveLeaves(leaves.map(a=>a.id===id?{...a,status:"rejected",rejectReason:reason||null}:a));
+    if(app){const em=getEmail(app.office,app.name);if(em)sendEmail(`Leave Unsuccessful — ${fmt(app.from)}`,`Hi ${app.name},\n\nYour ${app.leaveType} was unsuccessful.\n\n${reason?`Reason: ${reason}\n`:""}\nTaxtran HR`,[em]);}
+    setRejModal(null);setRejReason("");
   };
 
-  const saveEdit = app => {
-    const old=leaveApps.find(a=>a.id===app.id);
-    saveLeave(leaveApps.map(a=>a.id===app.id?app:a));
-    if(old&&old.status==="approved"&&app.status!=="approved"&&old.leaveType==="Annual Leave"){
-      const ns={...staffData};const sl=[...ns[old.office]];const idx=sl.findIndex(s=>s.name===old.name);
-      if(idx>=0){const cur=sl[idx];const th=(cur.alDays*8)+(cur.alHours||0)+(old.days*8);sl[idx]={...cur,alDays:Math.floor(th/8),alHours:th%8};ns[old.office]=sl;saveStaff(ns);}
+  const saveEdit=app=>{
+    const old=leaves.find(a=>a.id===app.id);
+    saveLeaves(leaves.map(a=>a.id===app.id?app:a));
+    if(old&&old.status==="approved"&&app.status!=="approved"&&(old.leaveType==="Annual Leave"||old.leaveType==="Compensatory Leave")){
+      const ns={...staff};const sl=[...ns[old.office]];const idx=sl.findIndex(s=>s.name===old.name);
+      if(idx>=0){
+        const cur=sl[idx];
+        if(old.leaveType==="Annual Leave"){const th=(cur.alDays*8)+(cur.alHours||0)+(old.days*8);sl[idx]={...cur,alDays:Math.floor(th/8),alHours:th%8};}
+        else{sl[idx]={...cur,compDays:(cur.compDays||0)+old.days};}
+        ns[old.office]=sl;saveStaff(ns);
+      }
     }
     setEditApp(null);
   };
 
-  const handleLogin = () => {
-    if(pinInput===ADMIN_PIN){setScreen("admin");setPinInput("");setPinError("");return;}
-    if(pinInput.length>=4){const m=Object.entries(pins).find(([,p])=>p===pinInput);if(m){const[key]=m;const[office,name]=key.split("__");setSelOffice(office);setSelName(name);setScreen("staff");setPinInput("");setPinError("");setView("home");return;}}
-    if(!selOffice||!selName){setPinError("PIN not recognised. Select your name below.");setShowSel(true);return;}
-    const key=`${selOffice}__${selName}`;
-    if(!pins[key]){setIsFirst(true);setPinInput("");setPinError("");return;}
-    setPinError("Incorrect PIN.");setPinInput("");
+  const handleLogin=()=>{
+    if(pinIn===ADMIN_PIN){setScreen("admin");setPinIn("");setPinErr("");return;}
+    if(pinIn.length>=4){const m=Object.entries(pins).find(([,p])=>p===pinIn);if(m){const[key]=m;const[o,n]=key.split("__");setSelOff(o);setSelName(n);setScreen("staff");setPinIn("");setPinErr("");setView("home");return;}}
+    if(!selOff||!selName){setPinErr("PIN not recognised. Select your name below.");setShowSel(true);return;}
+    const key=`${selOff}__${selName}`;
+    if(!pins[key]){setIsFirst(true);setPinIn("");setPinErr("");return;}
+    setPinErr("Incorrect PIN.");setPinIn("");
   };
 
-  const handleSetPin = () => {
-    if(newPin.length<4){setPinError("PIN must be at least 4 digits.");return;}
-    if(newPin!==confPin){setPinError("PINs do not match.");return;}
-    savePins({...pins,[`${selOffice}__${selName}`]:newPin});
+  const handleSetPin=()=>{
+    if(newPin.length<4){setPinErr("PIN must be at least 4 digits.");return;}
+    if(newPin!==confPin){setPinErr("PINs do not match.");return;}
+    savePins({...pins,[`${selOff}__${selName}`]:newPin});
     setIsFirst(false);setNewPin("");setConfPin("");setScreen("staff");setView("home");
   };
 
-  const logout = () => { setScreen("login");setSelOffice("");setSelName("");setPinInput("");setPinError("");setIsFirst(false);setShowSel(false); };
-  const [bizTrip,setBizTrip] = React.useState(false);
+  const logout=()=>{setScreen("login");setSelOff("");setSelName("");setPinIn("");setPinErr("");setIsFirst(false);setShowSel(false);};
 
-  const markToday = status => {
-    const finalStatus = status==="Present"&&bizTrip ? "Business Trip" : status;
-    saveAtt({...attendance,[`${selOffice}__${selName}__${today()}`]:{status:finalStatus,ts:new Date().toISOString()}});
-    setBizTrip(false);
-    setView("marked");
+  const markToday=status=>{
+    const finalStatus=status==="Present"&&bizTrip?"Business Trip":status;
+    saveAtt({...att,[`${selOff}__${selName}__${today()}`]:{status:finalStatus,ts:new Date().toISOString()}});
+    setBizTrip(false);setView("marked");
   };
 
-  const submitLeave = ({leaveType,from,to,days,note,doctorNote,urgent}) => {
-    saveLeave([...leaveApps,{id:Date.now(),office:selOffice,name:selName,leaveType,from,to,days,note,doctorNote,urgent,status:"pending",submittedAt:new Date().toISOString()}]);
+  const submitLeave=({leaveType,from,to,days,note,doctorNote,urgent})=>{
+    saveLeaves([...leaves,{id:Date.now(),office:selOff,name:selName,leaveType,from,to,days,note,doctorNote,urgent,status:"pending",submittedAt:new Date().toISOString()}]);
     if(leaveType==="Sick Leave"){
-      const na={...attendance};
-      Array.from({length:daysBetween(from,to)},(_,i)=>addDays(from,i)).forEach(d=>{na[`${selOffice}__${selName}__${d}`]={status:"Sick Leave",ts:new Date().toISOString()};});
+      const na={...att};
+      Array.from({length:dBetween(from,to)},(_,i)=>addDays(from,i)).forEach(d=>{na[`${selOff}__${selName}__${d}`]={status:"Sick Leave",ts:new Date().toISOString()};});
       saveAtt(na);
-      sendNotification(`Sick Leave — ${selName} (${selOffice})`,`${selName} from ${selOffice} has reported sick leave.\n\nDates: ${fmt(from)}${from!==to?` to ${fmt(to)}`:""}\nDays: ${days}${note?`\nNote: ${note}`:""}`,days);
-    } else {
-      sendNotification(`${urgent?"Urgent ":""}Leave — ${selName} (${selOffice})`,`${selName} from ${selOffice} applied for ${leaveType}.\n\nDates: ${fmt(from)}${from!==to?` to ${fmt(to)}`:""}\nDays: ${days}${urgent?"\nType: URGENT":""}${note?`\nNote: ${note}`:""}`,days);
+      notify(`Sick Leave — ${selName} (${selOff})`,`${selName} from ${selOff} reported sick leave.\n\nDates: ${fmt(from)}${from!==to?` to ${fmt(to)}`:""}\nDays: ${days}${note?`\nNote: ${note}`:""}`,days);
+    }else{
+      notify(`${urgent?"Urgent ":""}Leave — ${selName} (${selOff})`,`${selName} from ${selOff} applied for ${leaveType}.\n\nDates: ${fmt(from)}${from!==to?` to ${fmt(to)}`:""}\nDays: ${days}${urgent?"\nType: URGENT":""}${note?`\nNote: ${note}`:""}`,days);
     }
   };
 
-  const cancelLeave = id => saveLeave(leaveApps.map(a=>a.id===id&&a.status==="pending"?{...a,status:"cancelled"}:a));
+  const cancelLeave=id=>saveLeaves(leaves.map(a=>a.id===id&&a.status==="pending"?{...a,status:"cancelled"}:a));
 
-  const staffInfo = staffData[selOffice]?.find(s=>s.name===selName);
-  const myApps = leaveApps.filter(a=>a.office===selOffice&&a.name===selName);
-  const todayRec = attendance[`${selOffice}__${selName}__${today()}`];
-  const pendingCount = leaveApps.filter(a=>a.status==="pending").length;
+  const sInfo=staff[selOff]?.find(s=>s.name===selName);
+  const myApps=leaves.filter(a=>a.office===selOff&&a.name===selName);
+  const todayRec=att[`${selOff}__${selName}__${today()}`];
+  const pendCnt=leaves.filter(a=>a.status==="pending").length;
 
-  const Header = ({title,sub}) => (
-    <div style={{borderBottom:`1px solid ${C.border}`,paddingBottom:14,marginBottom:20}}>
+  const Hdr=({title,sub})=>(
+    <div style={{borderBottom:`1px solid ${C.bdr}`,paddingBottom:14,marginBottom:20}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-        <div><div style={{fontSize:17,fontWeight:800,color:C.text}}>{title}</div>{sub&&<div style={{fontSize:12,color:C.muted,marginTop:2}}>{sub}</div>}</div>
+        <div><div style={{fontSize:17,fontWeight:800,color:C.txt}}>{title}</div>{sub&&<div style={{fontSize:12,color:C.muted,marginTop:2}}>{sub}</div>}</div>
         <Btn variant="ghost" onClick={logout} style={{fontSize:13,padding:"6px 10px"}}>Sign out</Btn>
       </div>
     </div>
   );
 
-  if(loading) return <div style={{fontFamily:"system-ui,sans-serif",padding:P,textAlign:"center",paddingTop:80}}><div style={{fontSize:22,fontWeight:800,marginBottom:8}}>Taxtran</div><div style={{fontSize:14,color:C.muted}}>Loading...</div></div>;
+  // ── LOGIN ──
+  if(loading)return <div style={{fontFamily:"system-ui,sans-serif",padding:P,textAlign:"center",paddingTop:80}}><div style={{fontSize:22,fontWeight:800,marginBottom:8}}>Taxtran</div><div style={{fontSize:14,color:C.muted}}>Loading...</div></div>;
 
-  if(screen==="login") return (
+  if(screen==="login")return(
     <div style={{fontFamily:"system-ui,sans-serif",maxWidth:480,margin:"0 auto",padding:P,paddingTop:40}}>
-      <div style={{marginBottom:28}}><div style={{fontSize:22,fontWeight:800,color:C.text}}>Taxtran</div><div style={{fontSize:14,color:C.muted,marginTop:4}}>Staff Portal</div></div>
+      <div style={{marginBottom:28}}><div style={{fontSize:22,fontWeight:800,color:C.txt}}>Taxtran</div><div style={{fontSize:14,color:C.muted,marginTop:4}}>Staff Portal</div></div>
       {!isFirst?(
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
-          {showSel&&<>
-            <div><Lbl>Office</Lbl><select value={selOffice} onChange={e=>{setSelOffice(e.target.value);setSelName("");setPinError("");}} style={inp}><option value="">Select office</option>{Object.keys(staffData).map(o=><option key={o}>{o}</option>)}</select></div>
-            {selOffice&&<div><Lbl>Name</Lbl><select value={selName} onChange={e=>{setSelName(e.target.value);setPinError("");}} style={inp}><option value="">Select name</option>{(staffData[selOffice]||[]).map(s=><option key={s.name}>{s.name}</option>)}</select></div>}
-          </>}
-          <div><Lbl>PIN</Lbl><input type="password" value={pinInput} onChange={e=>setPinInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleLogin()} placeholder="Enter your PIN" style={inp}/></div>
-          {pinError&&<div style={{color:C.danger,fontSize:13}}>{pinError}</div>}
+          {showSel&&<><div><Lbl>Office</Lbl><select value={selOff} onChange={e=>{setSelOff(e.target.value);setSelName("");setPinErr("");}} style={inp}><option value="">Select office</option>{Object.keys(staff).map(o=><option key={o}>{o}</option>)}</select></div>{selOff&&<div><Lbl>Name</Lbl><select value={selName} onChange={e=>{setSelName(e.target.value);setPinErr("");}} style={inp}><option value="">Select name</option>{(staff[selOff]||[]).map(s=><option key={s.name}>{s.name}</option>)}</select></div>}</>}
+          <div><Lbl>PIN</Lbl><input type="password" value={pinIn} onChange={e=>setPinIn(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleLogin()} placeholder="Enter your PIN" style={inp}/></div>
+          {pinErr&&<div style={{color:C.err,fontSize:13}}>{pinErr}</div>}
           <Btn onClick={handleLogin} style={{width:"100%",padding:12}}>Continue</Btn>
-          {!showSel&&<div onClick={()=>setShowSel(true)} style={{background:C.subtle,border:`1px solid ${C.border}`,borderRadius:8,padding:"12px",cursor:"pointer",textAlign:"center"}}><div style={{fontSize:13,fontWeight:600,color:C.text}}>First time logging in?</div><div style={{fontSize:12,color:C.muted,marginTop:2}}>Tap here to select your name and set your PIN</div></div>}
+          {!showSel&&<div onClick={()=>setShowSel(true)} style={{background:C.sub,border:`1px solid ${C.bdr}`,borderRadius:8,padding:"12px",cursor:"pointer",textAlign:"center"}}><div style={{fontSize:13,fontWeight:600,color:C.txt}}>First time logging in?</div><div style={{fontSize:12,color:C.muted,marginTop:2}}>Tap here to select your name and set your PIN</div></div>}
         </div>
       ):(
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
           <div><div style={{fontSize:17,fontWeight:700}}>Welcome, {selName}</div><div style={{fontSize:13,color:C.muted,marginTop:4}}>Set a PIN to continue.</div></div>
           <div><Lbl>New PIN (min 4 digits)</Lbl><input type="password" value={newPin} onChange={e=>setNewPin(e.target.value)} style={inp}/></div>
           <div><Lbl>Confirm PIN</Lbl><input type="password" value={confPin} onChange={e=>setConfPin(e.target.value)} style={inp}/></div>
-          {pinError&&<div style={{color:C.danger,fontSize:13}}>{pinError}</div>}
+          {pinErr&&<div style={{color:C.err,fontSize:13}}>{pinErr}</div>}
           <Btn onClick={handleSetPin} style={{width:"100%",padding:12}}>Set PIN & Continue</Btn>
         </div>
       )}
     </div>
   );
 
+  // ── ADMIN ──
   if(screen==="admin"){
-    const filtered = adminOff==="All"?allStaff:allStaff.filter(s=>s.office===adminOff);
-    const filteredApps = adminOff==="All"?leaveApps:leaveApps.filter(a=>a.office===adminOff);
-    const pendingApps = filteredApps.filter(a=>a.status==="pending");
-    const tabS = v => ({padding:"8px 12px",borderRadius:6,border:"none",cursor:"pointer",fontWeight:600,fontSize:12,background:adminTab===v?C.accent:C.subtle,color:adminTab===v?"#fff":C.text,whiteSpace:"nowrap"});
-    return (
+    const filtered=aOff==="All"?allStaff:allStaff.filter(s=>s.office===aOff);
+    const fApps=aOff==="All"?leaves:leaves.filter(a=>a.office===aOff);
+    const pendApps=fApps.filter(a=>a.status==="pending");
+    const tabS=v=>({padding:"8px 10px",borderRadius:6,border:"none",cursor:"pointer",fontWeight:600,fontSize:12,background:aTab===v?C.acc:C.sub,color:aTab===v?"#fff":C.txt,whiteSpace:"nowrap"});
+    return(
       <div style={{fontFamily:"system-ui,sans-serif",maxWidth:960,margin:"0 auto",padding:P,background:C.bg,minHeight:"100vh"}}>
-        {rejectModal&&(<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.4)",zIndex:200,display:"flex",alignItems:"center",justifyContent:"center",padding:P}}><div style={{background:C.surface,borderRadius:12,padding:20,maxWidth:400,width:"100%"}}><div style={{fontWeight:700,fontSize:16,marginBottom:4}}>Reject Leave</div><div style={{fontSize:13,color:C.muted,marginBottom:14}}>{rejectModal.name} — {fmt(rejectModal.from)}{rejectModal.from!==rejectModal.to?` to ${fmt(rejectModal.to)}`:""}</div><Lbl>Reason (optional)</Lbl><input value={rejectReason} onChange={e=>setRejectReason(e.target.value)} placeholder="e.g. Insufficient notice..." style={{...inp,marginBottom:14}}/><div style={{display:"flex",gap:8}}><Btn variant="danger" onClick={()=>rejectLeave(rejectModal.id,rejectReason)} style={{flex:1}}>Confirm Reject</Btn><Btn variant="secondary" onClick={()=>{setRejectModal(null);setRejectReason("");}} style={{flex:1}}>Cancel</Btn></div></div></div>)}
-        {editApp&&(<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.4)",zIndex:200,display:"flex",alignItems:"center",justifyContent:"center",padding:P}}><div style={{background:C.surface,borderRadius:12,padding:20,maxWidth:440,width:"100%"}}><div style={{fontWeight:700,fontSize:16,marginBottom:14}}>Edit Leave — {editApp.name}</div><div style={{display:"flex",flexDirection:"column",gap:12}}><div><Lbl>Leave Type</Lbl><select value={editApp.leaveType} onChange={e=>setEditApp({...editApp,leaveType:e.target.value})} style={inp}>{LEAVE_TYPES.map(t=><option key={t}>{t}</option>)}</select></div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}><div><Lbl>From</Lbl><input type="date" value={editApp.from} onChange={e=>setEditApp({...editApp,from:e.target.value,days:daysBetween(e.target.value,editApp.to)})} style={inp}/></div><div><Lbl>To</Lbl><input type="date" value={editApp.to} onChange={e=>setEditApp({...editApp,to:e.target.value,days:daysBetween(editApp.from,e.target.value)})} style={inp}/></div></div><div><Lbl>Status</Lbl><select value={editApp.status} onChange={e=>setEditApp({...editApp,status:e.target.value})} style={inp}>{["pending","approved","rejected"].map(s=><option key={s}>{s}</option>)}</select></div><div><Lbl>Note</Lbl><input value={editApp.note||""} onChange={e=>setEditApp({...editApp,note:e.target.value})} style={inp}/></div><div style={{display:"flex",gap:8}}><Btn onClick={()=>saveEdit(editApp)} style={{flex:1}}>Save</Btn><Btn variant="secondary" onClick={()=>setEditApp(null)} style={{flex:1}}>Cancel</Btn></div></div></div></div>)}
-        <div style={{borderBottom:`1px solid ${C.border}`,paddingBottom:14,marginBottom:20,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        {rejModal&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.4)",zIndex:200,display:"flex",alignItems:"center",justifyContent:"center",padding:P}}><div style={{background:C.sur,borderRadius:12,padding:20,maxWidth:400,width:"100%"}}><div style={{fontWeight:700,fontSize:16,marginBottom:4}}>Reject Leave</div><div style={{fontSize:13,color:C.muted,marginBottom:14}}>{rejModal.name} — {fmt(rejModal.from)}{rejModal.from!==rejModal.to?` to ${fmt(rejModal.to)}`:""}</div><Lbl>Reason (optional)</Lbl><input value={rejReason} onChange={e=>setRejReason(e.target.value)} placeholder="e.g. Insufficient notice..." style={{...inp,marginBottom:14}}/><div style={{display:"flex",gap:8}}><Btn variant="danger" onClick={()=>rejectLeave(rejModal.id,rejReason)} style={{flex:1}}>Confirm Reject</Btn><Btn variant="secondary" onClick={()=>{setRejModal(null);setRejReason("");}} style={{flex:1}}>Cancel</Btn></div></div></div>}
+        {editApp&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.4)",zIndex:200,display:"flex",alignItems:"center",justifyContent:"center",padding:P}}><div style={{background:C.sur,borderRadius:12,padding:20,maxWidth:440,width:"100%"}}><div style={{fontWeight:700,fontSize:16,marginBottom:14}}>Edit Leave — {editApp.name}</div><div style={{display:"flex",flexDirection:"column",gap:12}}><div><Lbl>Leave Type</Lbl><select value={editApp.leaveType} onChange={e=>setEditApp({...editApp,leaveType:e.target.value})} style={inp}>{LEAVE_TYPES.map(t=><option key={t}>{t}</option>)}</select></div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}><div><Lbl>From</Lbl><input type="date" value={editApp.from} onChange={e=>setEditApp({...editApp,from:e.target.value,days:dBetween(e.target.value,editApp.to)})} style={inp}/></div><div><Lbl>To</Lbl><input type="date" value={editApp.to} onChange={e=>setEditApp({...editApp,to:e.target.value,days:dBetween(editApp.from,e.target.value)})} style={inp}/></div></div><div><Lbl>Status</Lbl><select value={editApp.status} onChange={e=>setEditApp({...editApp,status:e.target.value})} style={inp}>{["pending","approved","rejected"].map(s=><option key={s}>{s}</option>)}</select></div><div><Lbl>Note</Lbl><input value={editApp.note||""} onChange={e=>setEditApp({...editApp,note:e.target.value})} style={inp}/></div><div style={{display:"flex",gap:8}}><Btn onClick={()=>saveEdit(editApp)} style={{flex:1}}>Save</Btn><Btn variant="secondary" onClick={()=>setEditApp(null)} style={{flex:1}}>Cancel</Btn></div></div></div></div>}
+
+        <div style={{borderBottom:`1px solid ${C.bdr}`,paddingBottom:14,marginBottom:20,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div><div style={{fontSize:18,fontWeight:800}}>Taxtran Admin</div><div style={{fontSize:12,color:C.muted,marginTop:2}}>All Offices</div></div>
-          <div style={{display:"flex",gap:8,alignItems:"center"}}>{pendingCount>0&&<Tag label={`${pendingCount} pending`} type="warning"/>}<Btn variant="secondary" onClick={logout} style={{fontSize:13}}>Sign out</Btn></div>
+          <div style={{display:"flex",gap:8,alignItems:"center"}}>{pendCnt>0&&<Tag label={`${pendCnt} pending`} type="warning"/>}<Btn variant="secondary" onClick={logout} style={{fontSize:13}}>Sign out</Btn></div>
         </div>
-        <div style={{display:"flex",gap:6,marginBottom:16,flexWrap:"wrap"}}>{["calendar","requests","today","balances","summary","settings"].map(v=>(<button key={v} style={tabS(v)} onClick={()=>setAdminTab(v)}>{v==="requests"?`Requests${pendingCount>0?` (${pendingCount})`:""}`:(v==="today"?"Attendance":v==="balances"?"Balances":v==="calendar"?"Calendar":v==="summary"?"Summary":"Settings")}</button>))}</div>
-        <div style={{marginBottom:16}}><select value={adminOff} onChange={e=>setAdminOff(e.target.value)} style={{...inp,width:"auto"}}><option>All</option>{Object.keys(staffData).map(o=><option key={o}>{o}</option>)}</select></div>
 
-        {adminTab==="calendar"&&<Calendar leaveApps={filteredApps} officeFilter={adminOff}/>}
+        <div style={{display:"flex",gap:6,marginBottom:16,flexWrap:"wrap"}}>
+          {["calendar","requests","today","balances","summary","settings"].map(v=><button key={v} style={tabS(v)} onClick={()=>setATab(v)}>{v==="requests"?`Requests${pendCnt>0?` (${pendCnt})`:""}`:(v==="today"?"Attendance":v==="balances"?"Balances":v==="calendar"?"Calendar":v==="summary"?"Summary":"Settings")}</button>)}
+        </div>
+        <div style={{marginBottom:16}}><select value={aOff} onChange={e=>setAOff(e.target.value)} style={{...inp,width:"auto"}}><option>All</option>{Object.keys(staff).map(o=><option key={o}>{o}</option>)}</select></div>
 
-        {adminTab==="requests"&&(
+        {aTab==="calendar"&&<Calendar leaveApps={fApps} officeFilter={aOff}/>}
+
+        {aTab==="requests"&&(
           <div>
-            {pendingApps.length>0&&(<div style={{marginBottom:20}}><div style={{fontWeight:700,fontSize:12,color:C.warning,marginBottom:10,textTransform:"uppercase",letterSpacing:0.5}}>Pending Approval</div>{pendingApps.map(a=>(<Card key={a.id} style={{marginBottom:10,borderLeft:`3px solid ${C.warning}`}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:10}}><div><div style={{fontWeight:700,fontSize:14}}>{a.name} <span style={{color:C.muted,fontWeight:400,fontSize:12}}>{a.office}</span>{a.urgent&&<span style={{marginLeft:6,background:"#fffbeb",color:C.warning,borderRadius:4,padding:"1px 6px",fontSize:11,fontWeight:600}}>Urgent</span>}</div><div style={{fontSize:12,marginTop:4,display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}><Tag label={a.leaveType}/><span>{fmt(a.from)}{a.from!==a.to?` — ${fmt(a.to)}`:""}</span><span style={{color:C.muted}}>{a.days}d</span></div>{a.note&&<div style={{fontSize:12,color:C.muted,marginTop:4}}>{a.note}</div>}{a.doctorNote&&<div style={{fontSize:12,color:C.success,marginTop:2}}>📎 {a.doctorNote}</div>}</div><div style={{display:"flex",gap:6,flexWrap:"wrap"}}><Btn variant="success" onClick={()=>approveLeave(a.id)} style={{fontSize:12,padding:"7px 12px"}}>Approve</Btn><Btn variant="danger" onClick={()=>{setRejectModal(a);setRejectReason("");}} style={{fontSize:12,padding:"7px 12px"}}>Reject</Btn><Btn variant="secondary" onClick={()=>setEditApp({...a})} style={{fontSize:12,padding:"7px 12px"}}>Edit</Btn></div></div></Card>))}</div>)}
+            {pendApps.length>0&&<div style={{marginBottom:20}}><div style={{fontWeight:700,fontSize:12,color:C.warn,marginBottom:10,textTransform:"uppercase",letterSpacing:0.5}}>Pending Approval</div>{pendApps.map(a=><Card key={a.id} style={{marginBottom:10,borderLeft:`3px solid ${C.warn}`}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:10}}><div><div style={{fontWeight:700,fontSize:14}}>{a.name} <span style={{color:C.muted,fontWeight:400,fontSize:12}}>{a.office}</span>{a.urgent&&<span style={{marginLeft:6,background:"#fffbeb",color:C.warn,borderRadius:4,padding:"1px 6px",fontSize:11,fontWeight:600}}>Urgent</span>}</div><div style={{fontSize:12,marginTop:4,display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}><Tag label={a.leaveType}/><span>{fmt(a.from)}{a.from!==a.to?` — ${fmt(a.to)}`:""}</span><span style={{color:C.muted}}>{a.days}d</span></div>{a.note&&<div style={{fontSize:12,color:C.muted,marginTop:4}}>{a.note}</div>}{a.doctorNote&&<div style={{fontSize:12,color:C.ok,marginTop:2}}>📎 {a.doctorNote}</div>}</div><div style={{display:"flex",gap:6,flexWrap:"wrap"}}><Btn variant="success" onClick={()=>approveLeave(a.id)} style={{fontSize:12,padding:"7px 12px"}}>Approve</Btn><Btn variant="danger" onClick={()=>{setRejModal(a);setRejReason("");}} style={{fontSize:12,padding:"7px 12px"}}>Reject</Btn><Btn variant="secondary" onClick={()=>setEditApp({...a})} style={{fontSize:12,padding:"7px 12px"}}>Edit</Btn></div></div></Card>)}</div>}
             <div style={{fontWeight:700,fontSize:12,color:C.muted,marginBottom:10,textTransform:"uppercase",letterSpacing:0.5}}>All Applications</div>
-            {filteredApps.length===0&&<div style={{color:C.muted,fontSize:14}}>No applications yet.</div>}
-            {filteredApps.slice().reverse().map(a=>(<Card key={a.id} style={{marginBottom:8}}><div style={{display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:8,alignItems:"flex-start"}}><div><span style={{fontWeight:600,fontSize:14}}>{a.name}</span> <span style={{color:C.muted,fontSize:12}}>{a.office}</span>{a.urgent&&<span style={{marginLeft:6,background:"#fffbeb",color:C.warning,borderRadius:4,padding:"1px 6px",fontSize:11,fontWeight:600}}>Urgent</span>}<div style={{fontSize:12,marginTop:4,display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}><Tag label={a.leaveType}/><span>{fmt(a.from)}{a.from!==a.to?` — ${fmt(a.to)}`:""} <span style={{color:C.muted}}>({a.days}d)</span></span></div>{a.note&&<div style={{fontSize:12,color:C.muted,marginTop:2}}>{a.note}</div>}{a.rejectReason&&<div style={{fontSize:12,color:C.danger,marginTop:2}}>Reason: {a.rejectReason}</div>}{a.doctorNote&&<div style={{fontSize:12,color:C.success,marginTop:2}}>📎 {a.doctorNote}</div>}</div><div style={{display:"flex",gap:6,alignItems:"center"}}><Tag label={a.status} type={a.status==="approved"?"success":a.status==="rejected"||a.status==="cancelled"?"danger":"warning"}/><button onClick={()=>setEditApp({...a})} style={{background:"none",border:`1px solid ${C.border}`,borderRadius:6,padding:"3px 8px",fontSize:11,cursor:"pointer",color:C.muted}}>Edit</button></div></div></Card>))}
+            {fApps.length===0&&<div style={{color:C.muted,fontSize:14}}>No applications yet.</div>}
+            {fApps.slice().reverse().map(a=><Card key={a.id} style={{marginBottom:8}}><div style={{display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:8,alignItems:"flex-start"}}><div><span style={{fontWeight:600,fontSize:14}}>{a.name}</span> <span style={{color:C.muted,fontSize:12}}>{a.office}</span>{a.urgent&&<span style={{marginLeft:6,background:"#fffbeb",color:C.warn,borderRadius:4,padding:"1px 6px",fontSize:11,fontWeight:600}}>Urgent</span>}<div style={{fontSize:12,marginTop:4,display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}><Tag label={a.leaveType}/><span>{fmt(a.from)}{a.from!==a.to?` — ${fmt(a.to)}`:""} <span style={{color:C.muted}}>({a.days}d)</span></span></div>{a.note&&<div style={{fontSize:12,color:C.muted,marginTop:2}}>{a.note}</div>}{a.rejectReason&&<div style={{fontSize:12,color:C.err,marginTop:2}}>Reason: {a.rejectReason}</div>}{a.doctorNote&&<div style={{fontSize:12,color:C.ok,marginTop:2}}>📎 {a.doctorNote}</div>}</div><div style={{display:"flex",gap:6,alignItems:"center"}}><Tag label={a.status} type={a.status==="approved"?"success":a.status==="rejected"||a.status==="cancelled"?"danger":"warning"}/><button onClick={()=>setEditApp({...a})} style={{background:"none",border:`1px solid ${C.bdr}`,borderRadius:6,padding:"3px 8px",fontSize:11,cursor:"pointer",color:C.muted}}>Edit</button></div></div></Card>)}
           </div>
         )}
 
-        {adminTab==="today"&&(<div><div style={{marginBottom:12}}><input type="date" value={adminDate} onChange={e=>setAdminDate(e.target.value)} style={{...inp,width:"auto"}}/></div><div style={{overflowX:"auto"}}><Card style={{padding:0,overflow:"hidden"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}><thead><tr style={{background:C.subtle}}><th style={{padding:"9px 12px",textAlign:"left",fontWeight:600,borderBottom:`1px solid ${C.border}`,whiteSpace:"nowrap"}}>Name</th><th style={{padding:"9px 12px",textAlign:"left",fontWeight:600,borderBottom:`1px solid ${C.border}`,whiteSpace:"nowrap"}}>Office</th><th style={{padding:"9px 12px",textAlign:"left",fontWeight:600,borderBottom:`1px solid ${C.border}`,whiteSpace:"nowrap"}}>Status</th></tr></thead><tbody>{filtered.map((s,i)=>{const rec=attendance[`${s.office}__${s.name}__${adminDate}`];const app=leaveApps.find(a=>a.office===s.office&&a.name===s.name&&a.status==="approved"&&adminDate>=a.from&&adminDate<=a.to);const display=rec?.status||(app?app.leaveType:null);const tagType=display==="Present"?"success":display==="Sick Leave"?"danger":display==="Business Trip"?"warning":"neutral";return <tr key={s.name+s.office} style={{background:i%2===0?C.surface:C.bg,borderBottom:`1px solid ${C.border}`}}><td style={{padding:"8px 12px",fontWeight:500}}>{s.name}</td><td style={{padding:"8px 12px",color:C.muted,fontSize:12}}>{s.office}</td><td style={{padding:"8px 12px"}}>{display?<Tag label={display} type={tagType}/>:<span style={{color:C.muted,fontSize:12}}>—</span>}</td></tr>;})} </tbody></table></Card></div></div>)}
+        {aTab==="today"&&<div><div style={{marginBottom:12}}><input type="date" value={aDate} onChange={e=>setADate(e.target.value)} style={{...inp,width:"auto"}}/></div><div style={{overflowX:"auto"}}><Card style={{padding:0,overflow:"hidden"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}><thead><tr style={{background:C.sub}}><th style={{padding:"9px 12px",textAlign:"left",fontWeight:600,borderBottom:`1px solid ${C.bdr}`,whiteSpace:"nowrap"}}>Name</th><th style={{padding:"9px 12px",textAlign:"left",fontWeight:600,borderBottom:`1px solid ${C.bdr}`,whiteSpace:"nowrap"}}>Office</th><th style={{padding:"9px 12px",textAlign:"left",fontWeight:600,borderBottom:`1px solid ${C.bdr}`,whiteSpace:"nowrap"}}>Status</th></tr></thead><tbody>{filtered.map((s,i)=>{const rec=att[`${s.office}__${s.name}__${aDate}`];const app=leaves.find(a=>a.office===s.office&&a.name===s.name&&a.status==="approved"&&aDate>=a.from&&aDate<=a.to);const display=rec?.status||(app?app.leaveType:null);const tt=display==="Present"?"success":display==="Sick Leave"?"danger":display==="Business Trip"?"warning":"neutral";return <tr key={s.name+s.office} style={{background:i%2===0?C.sur:C.bg,borderBottom:`1px solid ${C.bdr}`}}><td style={{padding:"8px 12px",fontWeight:500}}>{s.name}</td><td style={{padding:"8px 12px",color:C.muted,fontSize:12}}>{s.office}</td><td style={{padding:"8px 12px"}}>{display?<Tag label={display} type={tt}/>:<span style={{color:C.muted,fontSize:12}}>—</span>}</td></tr>;})}</tbody></table></Card></div></div>}
 
-        {adminTab==="balances"&&(<div style={{overflowX:"auto"}}><Card style={{padding:0,overflow:"hidden"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}><thead><tr style={{background:C.subtle}}><th style={{padding:"9px 12px",textAlign:"left",fontWeight:600,borderBottom:`1px solid ${C.border}`,whiteSpace:"nowrap"}}>Name</th><th style={{padding:"9px 12px",textAlign:"left",fontWeight:600,borderBottom:`1px solid ${C.border}`,whiteSpace:"nowrap"}}>Office</th><th style={{padding:"9px 12px",textAlign:"left",fontWeight:600,borderBottom:`1px solid ${C.border}`,whiteSpace:"nowrap"}}>Start Date</th><th style={{padding:"9px 12px",textAlign:"left",fontWeight:600,borderBottom:`1px solid ${C.border}`,whiteSpace:"nowrap"}}>AL Balance</th><th style={{padding:"9px 12px",textAlign:"left",fontWeight:600,borderBottom:`1px solid ${C.border}`,whiteSpace:"nowrap"}}>Comp Leave</th><th style={{padding:"9px 12px",textAlign:"left",fontWeight:600,borderBottom:`1px solid ${C.border}`,whiteSpace:"nowrap"}}>Upcoming Leave</th></tr></thead><tbody>{filtered.map((s,i)=>{const upcoming=leaveApps.filter(a=>a.office===s.office&&a.name===s.name&&a.status==="approved"&&a.from>=today()).sort((a,b)=>a.from.localeCompare(b.from))[0];return <tr key={s.name+s.office} style={{background:i%2===0?C.surface:C.bg,borderBottom:`1px solid ${C.border}`}}><td style={{padding:"8px 12px",fontWeight:500}}>{s.name}</td><td style={{padding:"8px 12px",color:C.muted,fontSize:12}}>{s.office}</td><td style={{padding:"8px 12px",fontSize:12,color:C.muted}}>{s.startDate?fmt(s.startDate):"—"}</td><td style={{padding:"8px 12px"}}><Tag label={fmtBal(s.alDays,s.alHours)} type={s.alDays===0&&s.alHours===0?"danger":"success"}/></td><td style={{padding:"8px 12px"}}><Tag label={`${s.compDays||0}d`} type={(s.compDays||0)>0?"warning":"neutral"}/></td><td style={{padding:"8px 12px",fontSize:12}}>{upcoming?<span>{fmt(upcoming.from)}{upcoming.from!==upcoming.to?` — ${fmt(upcoming.to)}`:""} <span style={{color:C.muted}}>({upcoming.days}d)</span></span>:<span style={{color:C.muted}}>—</span>}</td></tr>;})} </tbody></table></Card></div>)}
+        {aTab==="balances"&&<div style={{overflowX:"auto"}}><Card style={{padding:0,overflow:"hidden"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}><thead><tr style={{background:C.sub}}>{["Name","Office","Start Date","AL Balance","Comp Leave","Upcoming Leave"].map(h=><th key={h} style={{padding:"9px 12px",textAlign:"left",fontWeight:600,borderBottom:`1px solid ${C.bdr}`,whiteSpace:"nowrap"}}>{h}</th>)}</tr></thead><tbody>{filtered.map((s,i)=>{const up=leaves.filter(a=>a.office===s.office&&a.name===s.name&&a.status==="approved"&&a.from>=today()).sort((a,b)=>a.from.localeCompare(b.from))[0];return <tr key={s.name+s.office} style={{background:i%2===0?C.sur:C.bg,borderBottom:`1px solid ${C.bdr}`}}><td style={{padding:"8px 12px",fontWeight:500}}>{s.name}</td><td style={{padding:"8px 12px",color:C.muted,fontSize:12}}>{s.office}</td><td style={{padding:"8px 12px",fontSize:12,color:C.muted}}>{s.startDate?fmt(s.startDate):"—"}</td><td style={{padding:"8px 12px"}}><Tag label={fmtBal(s.alDays,s.alHours)} type={s.alDays===0&&s.alHours===0?"danger":"success"}/></td><td style={{padding:"8px 12px"}}><Tag label={`${s.compDays||0}d`} type={(s.compDays||0)>0?"warning":"neutral"}/></td><td style={{padding:"8px 12px",fontSize:12}}>{up?<span>{fmt(up.from)}{up.from!==up.to?` — ${fmt(up.to)}`:""} <span style={{color:C.muted}}>({up.days}d)</span></span>:<span style={{color:C.muted}}>—</span>}</td></tr>;})}</tbody></table></Card></div>}
 
-        {adminTab==="summary"&&(<div><div style={{fontWeight:700,fontSize:12,color:C.muted,textTransform:"uppercase",letterSpacing:0.5,marginBottom:12}}>Staff Summary</div><div style={{overflowX:"auto"}}><Card style={{padding:0,overflow:"hidden"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}><thead><tr style={{background:C.subtle}}>                  {["Name","Office","Years","AL Balance","Comp Leave","AL Used","Comp Used","Sick Days","Absent"].map(h=>(<th key={h} style={{padding:"9px 12px",textAlign:"left",fontWeight:600,borderBottom:`1px solid ${C.border}`,whiteSpace:"nowrap"}}>{h}</th>))}</tr></thead><tbody>{filtered.map((s,i)=>{const alUsed=leaveApps.filter(a=>a.office===s.office&&a.name===s.name&&a.status==="approved"&&a.leaveType==="Annual Leave").reduce((sum,a)=>sum+a.days,0);const sick=leaveApps.filter(a=>a.office===s.office&&a.name===s.name&&a.leaveType==="Sick Leave").reduce((sum,a)=>sum+a.days,0)+Object.entries(attendance).filter(([k,v])=>k.startsWith(`${s.office}__${s.name}__`)&&v.status==="Sick Leave").length;const absent=Object.entries(attendance).filter(([k,v])=>k.startsWith(`${s.office}__${s.name}__`)&&v.status==="Absent").length;                  const compUsed=leaveApps.filter(a=>a.office===s.office&&a.name===s.name&&a.status==="approved"&&a.leaveType==="Compensatory Leave").reduce((sum,a)=>sum+a.days,0);
-                  const yrs=yearsOfService(s.startDate);return <tr key={s.name+s.office} style={{background:i%2===0?C.surface:C.bg,borderBottom:`1px solid ${C.border}`}}><td style={{padding:"8px 12px",fontWeight:500}}>{s.name}</td><td style={{padding:"8px 12px",color:C.muted,fontSize:12}}>{s.office}</td><td style={{padding:"8px 12px",fontSize:12,color:C.muted}}>{yrs!==null?`${yrs}y`:"—"}</td><td style={{padding:"8px 12px"}}><Tag label={fmtBal(s.alDays,s.alHours)} type={s.alDays===0?"danger":"success"}/></td><td style={{padding:"8px 12px"}}><Tag label={`${s.compDays||0}d`} type={(s.compDays||0)>0?"warning":"neutral"}/></td><td style={{padding:"8px 12px"}}>{alUsed>0?<Tag label={`${alUsed}d`}/>:<span style={{color:C.muted}}>—</span>}</td><td style={{padding:"8px 12px"}}>{compUsed>0?<Tag label={`${compUsed}d`} type="warning"/>:<span style={{color:C.muted}}>—</span>}</td><td style={{padding:"8px 12px"}}>{sick>0?<Tag label={`${sick}d`} type={sick>=5?"danger":"warning"}/>:<span style={{color:C.muted}}>—</span>}</td><td style={{padding:"8px 12px"}}>{absent>0?<Tag label={`${absent}d`} type="danger"/>:<span style={{color:C.muted}}>—</span>}</td></tr>;})} </tbody></table></Card></div></div>)}
+        {aTab==="summary"&&<div><div style={{fontWeight:700,fontSize:12,color:C.muted,textTransform:"uppercase",letterSpacing:0.5,marginBottom:12}}>Staff Summary</div><div style={{overflowX:"auto"}}><Card style={{padding:0,overflow:"hidden"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}><thead><tr style={{background:C.sub}}>{["Name","Office","Years","AL Balance","Comp Leave","AL Used","Comp Used","Sick Days","Absent"].map(h=><th key={h} style={{padding:"9px 12px",textAlign:"left",fontWeight:600,borderBottom:`1px solid ${C.bdr}`,whiteSpace:"nowrap"}}>{h}</th>)}</tr></thead><tbody>{filtered.map((s,i)=>{const alUsed=leaves.filter(a=>a.office===s.office&&a.name===s.name&&a.status==="approved"&&a.leaveType==="Annual Leave").reduce((sum,a)=>sum+a.days,0);const compUsed=leaves.filter(a=>a.office===s.office&&a.name===s.name&&a.status==="approved"&&a.leaveType==="Compensatory Leave").reduce((sum,a)=>sum+a.days,0);const sick=leaves.filter(a=>a.office===s.office&&a.name===s.name&&a.leaveType==="Sick Leave").reduce((sum,a)=>sum+a.days,0)+Object.entries(att).filter(([k,v])=>k.startsWith(`${s.office}__${s.name}__`)&&v.status==="Sick Leave").length;const absent=Object.entries(att).filter(([k,v])=>k.startsWith(`${s.office}__${s.name}__`)&&v.status==="Absent").length;const yrs=yOS(s.startDate);return <tr key={s.name+s.office} style={{background:i%2===0?C.sur:C.bg,borderBottom:`1px solid ${C.bdr}`}}><td style={{padding:"8px 12px",fontWeight:500}}>{s.name}</td><td style={{padding:"8px 12px",color:C.muted,fontSize:12}}>{s.office}</td><td style={{padding:"8px 12px",fontSize:12,color:C.muted}}>{yrs!==null?`${yrs}y`:"—"}</td><td style={{padding:"8px 12px"}}><Tag label={fmtBal(s.alDays,s.alHours)} type={s.alDays===0?"danger":"success"}/></td><td style={{padding:"8px 12px"}}><Tag label={`${s.compDays||0}d`} type={(s.compDays||0)>0?"warning":"neutral"}/></td><td style={{padding:"8px 12px"}}>{alUsed>0?<Tag label={`${alUsed}d`}/>:<span style={{color:C.muted}}>—</span>}</td><td style={{padding:"8px 12px"}}>{compUsed>0?<Tag label={`${compUsed}d`} type="warning"/>:<span style={{color:C.muted}}>—</span>}</td><td style={{padding:"8px 12px"}}>{sick>0?<Tag label={`${sick}d`} type={sick>=5?"danger":"warning"}/>:<span style={{color:C.muted}}>—</span>}</td><td style={{padding:"8px 12px"}}>{absent>0?<Tag label={`${absent}d`} type="danger"/>:<span style={{color:C.muted}}>—</span>}</td></tr>;})}</tbody></table></Card></div></div>}
 
-        {adminTab==="settings"&&<Settings attendance={attendance} saveAtt={saveAtt} leaveApps={leaveApps} saveLeave={saveLeave} pins={pins} savePins={savePins} staffData={staffData} saveStaff={saveStaff}/>}
+        {aTab==="settings"&&<Settings attendance={att} saveAtt={saveAtt} leaveApps={leaves} saveLeave={saveLeaves} pins={pins} savePins={savePins} staffData={staff} saveStaff={saveStaff}/>}
       </div>
     );
   }
 
-  if(view==="mark-present") return (
+  // ── MARK PRESENT ──
+  if(view==="mark-present")return(
     <div style={{fontFamily:"system-ui,sans-serif",maxWidth:480,margin:"0 auto",padding:P,background:C.bg,minHeight:"100vh"}}>
-      <Header title={selName} sub={`${selOffice} · ${fmt(today())}`}/>
+      <Hdr title={selName} sub={`${selOff} · ${fmt(today())}`}/>
       <button onClick={()=>setView("home")} style={{background:"none",border:"none",color:C.muted,fontSize:13,cursor:"pointer",padding:0,marginBottom:20}}>← Back</button>
       <div style={{fontSize:16,fontWeight:700,marginBottom:20}}>Mark Attendance</div>
       <Card style={{marginBottom:16}}>
-        <div style={{fontSize:14,fontWeight:600,color:C.text,marginBottom:16}}>{fmt(today())}</div>
-        <label style={{display:"flex",alignItems:"center",gap:12,cursor:"pointer",padding:"12px",background:bizTrip?C.subtle:C.surface,border:`1px solid ${bizTrip?C.accent:C.border}`,borderRadius:8}}>
+        <div style={{fontSize:14,fontWeight:600,color:C.txt,marginBottom:16}}>{fmt(today())}</div>
+        <label style={{display:"flex",alignItems:"center",gap:12,cursor:"pointer",padding:"12px",background:bizTrip?C.sub:C.sur,border:`1px solid ${bizTrip?C.acc:C.bdr}`,borderRadius:8}}>
           <input type="checkbox" checked={bizTrip} onChange={e=>setBizTrip(e.target.checked)} style={{width:18,height:18,cursor:"pointer",flexShrink:0}}/>
-          <div>
-            <div style={{fontSize:14,fontWeight:600,color:C.text}}>I am on a business trip today</div>
-            <div style={{fontSize:12,color:C.muted,marginTop:2}}>This will be visible to your team on the calendar</div>
-          </div>
+          <div><div style={{fontSize:14,fontWeight:600,color:C.txt}}>I am on a business trip today</div><div style={{fontSize:12,color:C.muted,marginTop:2}}>This will be visible to your team on the calendar</div></div>
         </label>
       </Card>
-      <Btn onClick={()=>markToday("Present")} style={{width:"100%",padding:12}}>
-        Confirm — {bizTrip?"Business Trip":"Present"}
-      </Btn>
+      <Btn onClick={()=>markToday("Present")} style={{width:"100%",padding:12}}>Confirm — {bizTrip?"Business Trip":"Present"}</Btn>
     </div>
   );
 
-  if(view==="marked") return (
+  // ── MARKED ──
+  if(view==="marked")return(
     <div style={{fontFamily:"system-ui,sans-serif",maxWidth:480,margin:"0 auto",padding:P,background:C.bg,minHeight:"100vh"}}>
-      <Header title={selName} sub={`${selOffice} · ${fmt(today())}`}/>
+      <Hdr title={selName} sub={`${selOff} · ${fmt(today())}`}/>
       <div style={{textAlign:"center",paddingTop:48}}>
-        <div style={{width:48,height:48,borderRadius:"50%",background:"#f0fdf4",border:`2px solid ${C.success}`,margin:"0 auto 16px",display:"flex",alignItems:"center",justifyContent:"center"}}><div style={{width:12,height:12,borderRadius:"50%",background:C.success}}/></div>
+        <div style={{width:48,height:48,borderRadius:"50%",background:"#f0fdf4",border:`2px solid ${C.ok}`,margin:"0 auto 16px",display:"flex",alignItems:"center",justifyContent:"center"}}><div style={{width:12,height:12,borderRadius:"50%",background:C.ok}}/></div>
         <div style={{fontSize:18,fontWeight:700,marginBottom:6}}>Marked</div>
-        <div style={{fontSize:14,color:C.muted}}>{attendance[`${selOffice}__${selName}__${today()}`]?.status} — {fmt(today())}</div>
+        <div style={{fontSize:14,color:C.muted}}>{att[`${selOff}__${selName}__${today()}`]?.status} — {fmt(today())}</div>
         <Btn onClick={()=>setView("home")} style={{marginTop:24}}>Back to Home</Btn>
       </div>
     </div>
   );
 
-  if(view==="leave"||view==="sick") return (
+  // ── LEAVE / SICK ──
+  if(view==="leave"||view==="sick")return(
     <div style={{fontFamily:"system-ui,sans-serif",maxWidth:480,margin:"0 auto",padding:P,background:C.bg,minHeight:"100vh"}}>
-      <Header title={selName} sub={`${selOffice} · ${fmt(today())}`}/>
+      <Hdr title={selName} sub={`${selOff} · ${fmt(today())}`}/>
       <button onClick={()=>setView("home")} style={{background:"none",border:"none",color:C.muted,fontSize:13,cursor:"pointer",padding:0,marginBottom:16}}>← Back</button>
       <div style={{fontSize:16,fontWeight:700,marginBottom:20}}>{view==="sick"?"Report Sick Leave":"Apply for Leave"}</div>
-      <LeaveForm selOffice={selOffice} initialType={view==="sick"?"Sick Leave":null} onSubmit={submitLeave} onBack={()=>setView("home")}/>
+      <LeaveForm selOffice={selOff} initialType={view==="sick"?"Sick Leave":null} onSubmit={submitLeave} onBack={()=>setView("home")}/>
     </div>
   );
 
-  if(view==="calendar") return (
+  // ── CALENDAR ──
+  if(view==="calendar")return(
     <div style={{fontFamily:"system-ui,sans-serif",maxWidth:480,margin:"0 auto",padding:P,background:C.bg,minHeight:"100vh"}}>
-      <Header title={selName} sub={`${selOffice} · ${fmt(today())}`}/>
+      <Hdr title={selName} sub={`${selOff} · ${fmt(today())}`}/>
       <button onClick={()=>setView("home")} style={{background:"none",border:"none",color:C.muted,fontSize:13,cursor:"pointer",padding:0,marginBottom:16}}>← Back</button>
       <div style={{fontSize:16,fontWeight:700,marginBottom:16}}>Team Calendar</div>
-      <Calendar leaveApps={leaveApps.filter(a=>a.office===selOffice)} officeFilter={selOffice}/>
+      <Calendar leaveApps={leaves.filter(a=>a.office===selOff)} officeFilter={selOff}/>
     </div>
   );
 
-  if(view==="info") {
-    const sick=Object.entries(attendance).filter(([k,v])=>k.startsWith(`${selOffice}__${selName}__`)&&v.status==="Sick Leave").length;
-    const absent=Object.entries(attendance).filter(([k,v])=>k.startsWith(`${selOffice}__${selName}__`)&&v.status==="Absent").length;
-    const approvedAL=leaveApps.filter(a=>a.office===selOffice&&a.name===selName&&a.status==="approved"&&a.leaveType==="Annual Leave").reduce((s,a)=>s+a.days,0);
-    return (
+  // ── MY OVERVIEW ──
+  if(view==="info"){
+    const sick=Object.entries(att).filter(([k,v])=>k.startsWith(`${selOff}__${selName}__`)&&v.status==="Sick Leave").length;
+    const absent=Object.entries(att).filter(([k,v])=>k.startsWith(`${selOff}__${selName}__`)&&v.status==="Absent").length;
+    const approvedAL=leaves.filter(a=>a.office===selOff&&a.name===selName&&a.status==="approved"&&a.leaveType==="Annual Leave").reduce((s,a)=>s+a.days,0);
+    return(
       <div style={{fontFamily:"system-ui,sans-serif",maxWidth:480,margin:"0 auto",padding:P,background:C.bg,minHeight:"100vh"}}>
-        <Header title={selName} sub={`${selOffice} · ${fmt(today())}`}/>
+        <Hdr title={selName} sub={`${selOff} · ${fmt(today())}`}/>
         <button onClick={()=>setView("home")} style={{background:"none",border:"none",color:C.muted,fontSize:13,cursor:"pointer",padding:0,marginBottom:16}}>← Back</button>
         <div style={{fontSize:16,fontWeight:700,marginBottom:16}}>My Overview</div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:20}}>
-          {[{label:"AL Balance",value:staffInfo?fmtBal(staffInfo.alDays,staffInfo.alHours):"—",sub:approvedAL>0?`${approvedAL}d approved`:"days remaining"},{label:"Sick Days",value:sick,sub:"all time"},{label:"Absent",value:absent,sub:"all time"}].map(({label,value,sub})=>(
+          {[
+            {label:"AL Balance",value:sInfo?fmtBal(sInfo.alDays,sInfo.alHours):"—",sub:approvedAL>0?`${approvedAL}d approved`:"days remaining"},
+            {label:"Comp Leave",value:sInfo?`${sInfo.compDays||0}d`:"—",sub:"remaining"},
+            {label:"Sick Days",value:sick,sub:"all time"},
+          ].map(({label,value,sub})=>(
             <Card key={label} style={{textAlign:"center",padding:10}}>
               <div style={{fontSize:9,fontWeight:700,color:C.muted,letterSpacing:0.8,textTransform:"uppercase",marginBottom:6}}>{label}</div>
-              <div style={{fontSize:22,fontWeight:800,color:C.text,lineHeight:1}}>{value}</div>
+              <div style={{fontSize:22,fontWeight:800,color:C.txt,lineHeight:1}}>{value}</div>
               <div style={{fontSize:10,color:C.muted,marginTop:3}}>{sub}</div>
             </Card>
           ))}
@@ -640,14 +613,14 @@ function App() {
           <Card key={a.id} style={{marginBottom:8}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
               <div>
-                <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:6}}><Tag label={a.leaveType}/>{a.urgent&&<span style={{background:"#fffbeb",color:C.warning,borderRadius:4,padding:"1px 6px",fontSize:11,fontWeight:600}}>Urgent</span>}</div>
-                <div style={{fontSize:13,color:C.text}}>{fmt(a.from)}{a.from!==a.to?` — ${fmt(a.to)}`:""}</div>
+                <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:6}}><Tag label={a.leaveType}/>{a.urgent&&<span style={{background:"#fffbeb",color:C.warn,borderRadius:4,padding:"1px 6px",fontSize:11,fontWeight:600}}>Urgent</span>}</div>
+                <div style={{fontSize:13,color:C.txt}}>{fmt(a.from)}{a.from!==a.to?` — ${fmt(a.to)}`:""}</div>
                 <div style={{fontSize:12,color:C.muted,marginTop:2}}>{a.days} day{a.days!==1?"s":""}{a.note?` · ${a.note}`:""}</div>
-                {a.rejectReason&&<div style={{fontSize:12,color:C.danger,marginTop:4}}>Rejected: {a.rejectReason}</div>}
+                {a.rejectReason&&<div style={{fontSize:12,color:C.err,marginTop:4}}>Rejected: {a.rejectReason}</div>}
               </div>
               <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:6}}>
                 <Tag label={a.status} type={a.status==="approved"?"success":a.status==="rejected"||a.status==="cancelled"?"danger":"warning"}/>
-                {a.status==="pending"&&<button onClick={()=>cancelLeave(a.id)} style={{background:"none",border:`1px solid ${C.border}`,borderRadius:6,padding:"3px 8px",fontSize:11,cursor:"pointer",color:C.danger}}>Cancel</button>}
+                {a.status==="pending"&&<button onClick={()=>cancelLeave(a.id)} style={{background:"none",border:`1px solid ${C.bdr}`,borderRadius:6,padding:"3px 8px",fontSize:11,cursor:"pointer",color:C.err}}>Cancel</button>}
               </div>
             </div>
           </Card>
@@ -656,39 +629,26 @@ function App() {
     );
   }
 
-  const ActionBtn = ({label,sub,onClick,disabled}) => (
-    <button onClick={disabled?undefined:onClick} style={{background:disabled?C.subtle:C.surface,border:`1px solid ${C.border}`,borderRadius:10,padding:"16px",textAlign:"left",cursor:disabled?"not-allowed":"pointer",width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",opacity:disabled?0.5:1}}>
-      <div><div style={{fontSize:15,fontWeight:600,color:C.text}}>{label}</div>{sub&&<div style={{fontSize:12,color:C.muted,marginTop:2}}>{sub}</div>}</div>
+  // ── HOME ──
+  const ABtn=({label,sub,onClick,disabled})=>(
+    <button onClick={disabled?undefined:onClick} style={{background:disabled?C.sub:C.sur,border:`1px solid ${C.bdr}`,borderRadius:10,padding:"16px",textAlign:"left",cursor:disabled?"not-allowed":"pointer",width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",opacity:disabled?0.5:1}}>
+      <div><div style={{fontSize:15,fontWeight:600,color:C.txt}}>{label}</div>{sub&&<div style={{fontSize:12,color:C.muted,marginTop:2}}>{sub}</div>}</div>
       <span style={{color:C.muted,fontSize:18,flexShrink:0}}>›</span>
     </button>
   );
 
-  return (
+  return(
     <div style={{fontFamily:"system-ui,sans-serif",maxWidth:480,margin:"0 auto",padding:P,background:C.bg,minHeight:"100vh"}}>
-      <Header title={selName} sub={`${selOffice} · ${fmt(today())}`}/>
-      {todayRec?(
-        <div style={{background:"#f0fdf4",border:`1px solid #bbf7d0`,borderRadius:8,padding:"12px",marginBottom:16,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <div style={{fontSize:13,fontWeight:600,color:C.success}}>Attendance marked</div>
-          <Tag label={todayRec.status} type="success"/>
-        </div>
-      ):(
-        <div style={{background:"#fffbeb",border:`1px solid #fde68a`,borderRadius:8,padding:"12px",marginBottom:16}}>
-          <div style={{fontSize:13,fontWeight:600,color:C.warning}}>Attendance not marked today</div>
-        </div>
-      )}
+      <Hdr title={selName} sub={`${selOff} · ${fmt(today())}`}/>
+      {todayRec?<div style={{background:"#f0fdf4",border:`1px solid #bbf7d0`,borderRadius:8,padding:"12px",marginBottom:16,display:"flex",justifyContent:"space-between",alignItems:"center"}}><div style={{fontSize:13,fontWeight:600,color:C.ok}}>Attendance marked</div><Tag label={todayRec.status} type="success"/></div>:<div style={{background:"#fffbeb",border:`1px solid #fde68a`,borderRadius:8,padding:"12px",marginBottom:16}}><div style={{fontSize:13,fontWeight:600,color:C.warn}}>Attendance not marked today</div></div>}
       <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:16}}>
-        <ActionBtn label="Mark as Present" sub={todayRec?"Already marked today":"I am in the office today"} onClick={()=>setView("mark-present")} disabled={!!todayRec}/>
-        <ActionBtn label="Report Sick Leave" sub={todayRec?"Already marked today":"Mark sick for today or multiple days"} onClick={()=>setView("sick")} disabled={!!todayRec}/>
-        <ActionBtn label="Apply for Leave" sub="Annual leave or other" onClick={()=>setView("leave")}/>
-        <ActionBtn label="Team Calendar" sub="See who is away in your office" onClick={()=>setView("calendar")}/>
-        <ActionBtn label="My Overview" sub={staffInfo?`${fmtBal(staffInfo.alDays,staffInfo.alHours)} annual leave remaining`:"View balance and history"} onClick={()=>setView("info")}/>
+        <ABtn label="Mark as Present" sub={todayRec?"Already marked today":"I am in the office today"} onClick={()=>setView("mark-present")} disabled={!!todayRec}/>
+        <ABtn label="Report Sick Leave" sub={todayRec?"Already marked today":"Mark sick for today or multiple days"} onClick={()=>setView("sick")} disabled={!!todayRec}/>
+        <ABtn label="Apply for Leave" sub="Annual, compensatory or other leave" onClick={()=>setView("leave")}/>
+        <ABtn label="Team Calendar" sub="See who is away in your office" onClick={()=>setView("calendar")}/>
+        <ABtn label="My Overview" sub={sInfo?`${fmtBal(sInfo.alDays,sInfo.alHours)} AL · ${sInfo.compDays||0}d comp remaining`:"View balance and history"} onClick={()=>setView("info")}/>
       </div>
-      {myApps.filter(a=>a.status==="pending").length>0&&(
-        <div onClick={()=>setView("info")} style={{background:C.subtle,border:`1px solid ${C.border}`,borderRadius:8,padding:"12px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <span style={{fontSize:13,color:C.muted}}>You have a pending leave application</span>
-          <span style={{color:C.muted}}>›</span>
-        </div>
-      )}
+      {myApps.filter(a=>a.status==="pending").length>0&&<div onClick={()=>setView("info")} style={{background:C.sub,border:`1px solid ${C.bdr}`,borderRadius:8,padding:"12px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}><span style={{fontSize:13,color:C.muted}}>You have a pending leave application</span><span style={{color:C.muted}}>›</span></div>}
     </div>
   );
 }
