@@ -606,12 +606,19 @@ function App(){
     const sick=Object.entries(att).filter(([k,v])=>k.startsWith(`${selOff}__${selName}__`)&&v.status==="Sick Leave").length;
     const absent=Object.entries(att).filter(([k,v])=>k.startsWith(`${selOff}__${selName}__`)&&v.status==="Absent").length;
     const approvedAL=leaves.filter(a=>a.office===selOff&&a.name===selName&&a.status==="approved"&&a.leaveType==="Annual Leave").reduce((s,a)=>s+a.days,0);
+    const noPayTotal=leaves.filter(a=>a.office===selOff&&a.name===selName&&(a.status==="approved"||a.status==="pending")&&a.leaveType==="Other Leave").reduce((s,a)=>s+a.days,0);
     return(
       <div style={{fontFamily:"system-ui,sans-serif",maxWidth:480,margin:"0 auto",padding:P,background:C.bg,minHeight:"100vh"}}>
         <Hdr title={selName} sub={`${selOff} · ${fmt(today())}`}/>
         <button onClick={()=>setView("home")} style={{background:"none",border:"none",color:C.muted,fontSize:13,cursor:"pointer",padding:0,marginBottom:16}}>← Back</button>
         <div style={{fontSize:16,fontWeight:700,marginBottom:16}}>My Overview</div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:20}}>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:20}}>
+          {[
+            {label:"AL Balance",value:sInfo?fmtBal(sInfo.alDays,sInfo.alHours):"—",sub:approvedAL>0?`${approvedAL}d approved`:"days remaining"},
+            {label:"Comp Leave",value:sInfo?`${sInfo.compDays||0}d`:"—",sub:"remaining"},
+            {label:"Sick Days",value:sick,sub:"all time"},
+            {label:"No-pay Leave",value:noPayTotal>0?`${noPayTotal}d`:"—",sub:"approved & pending"},
+          ].map(({label,value,sub})=>(
           {[
             {label:"AL Balance",value:sInfo?fmtBal(sInfo.alDays,sInfo.alHours):"—",sub:approvedAL>0?`${approvedAL}d approved`:"days remaining"},
             {label:"Comp Leave",value:sInfo?`${sInfo.compDays||0}d`:"—",sub:"remaining"},
