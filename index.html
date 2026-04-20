@@ -377,7 +377,7 @@ function App(){
         const[pd,ad,ld,sd]=await Promise.all([gsRead("pins"),gsRead("attendance"),gsRead("leave"),gsRead("staff")]);
         if(pd){const p={};pd.forEach(r=>p[r.key]=String(r.value).replace(/^pin_/,""));setPins(p);}
         if(ad){const a={};ad.forEach(r=>a[r.key]=JSON.parse(r.value));setAtt(a);}
-        if(ld)setLeaves(ld.map(r=>({...r,days:Number(r.days),urgent:r.urgent==="true",from:r.from?r.from.slice(0,10):r.from,to:r.to?r.to.slice(0,10):r.to})));
+        if(ld)setLeaves(ld.map(r=>{const trimDate=d=>{if(!d||typeof d!=="string")return d;if(d.includes("T")){const hk=new Date(new Date(d).getTime()+8*60*60*1000);return hk.toISOString().slice(0,10);}return d.slice(0,10);};return{...r,days:Number(r.days),urgent:r.urgent==="true",from:trimDate(r.from),to:trimDate(r.to)};}));
         if(sd){const s={};sd.forEach(r=>{if(!s[r.office])s[r.office]=[];s[r.office].push({name:r.name,alDays:Number(r.alDays)||0,alHours:Number(r.alHours)||0,compDays:Number(r.compDays)||0,email:r.email||null,startDate:r.startDate||null});});if(Object.keys(s).length>0)setStaff(s);}
       }catch(e){}
       setLoading(false);
