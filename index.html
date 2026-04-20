@@ -384,7 +384,7 @@ function App(){
     })();
   },[]);
 
-  const savePins=async p=>{setPins(p);await gsWrite("pins",Object.entries(p).map(([k,v])=>({key:k,value:"pin_"+v})));};
+  const savePins=async p=>{setPins(p);if(Object.keys(p).length>0)await gsWrite("pins",Object.entries(p).map(([k,v])=>({key:k,value:"pin_"+v})));};
   const saveAtt=async a=>{setAtt(a);await gsWrite("attendance",Object.entries(a).map(([k,v])=>({key:k,value:JSON.stringify(v)})));};
   const saveLeaves=async l=>{setLeaves(l);await gsWrite("leave",l);};
   const saveStaff=async s=>{setStaff(s);await gsWrite("staff",Object.entries(s).flatMap(([office,ms])=>ms.map(m=>({office,...m}))));};
