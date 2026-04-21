@@ -142,6 +142,7 @@ const inp={width:"100%",padding:"10px 12px",borderRadius:8,border:`1px solid ${C
 
 // ── LEAVE FORM ──
 function LeaveForm({selOffice,initialType,onSubmit,onBack}){
+  const [backdate,setBackdate]=React.useState(false);
   const isSick=initialType==="Sick Leave";
   const [type,setType]=React.useState(initialType||"Annual Leave");
   const [mode,setMode]=React.useState("single");
@@ -152,7 +153,7 @@ function LeaveForm({selOffice,initialType,onSubmit,onBack}){
   const [err,setErr]=React.useState("");
   const [done,setDone]=React.useState(false);
   const hasSession=type==="Annual Leave"||type==="Sick Leave"||type==="Other Leave";
-  const getMin=()=>isSick||urgent?today():addDays(today(),2);
+  const getMin=()=>backdate||isSick||urgent?null:addDays(today(),2);
   const [from,setFrom]=React.useState(getMin);
   const [to,setTo]=React.useState(getMin);
   const hols=HOLIDAYS[selOffice]||{};
@@ -169,8 +170,8 @@ function LeaveForm({selOffice,initialType,onSubmit,onBack}){
     setErr("");
     if(realTo<from){setErr("End date must be after start date.");return;}
     if(urgent&&!note.trim()){setErr("A note is required for urgent leave.");return;}
-    if(type==="Annual Leave"&&!urgent){const e=chkNotice(from,realTo,type,selOffice);if(e){setErr(e);return;}}
-    if(type==="Compensatory Leave"){const e=chkNotice(from,realTo,type,selOffice);if(e){setErr(e);return;}}
+    if(type==="Annual Leave"&&!urgent&&!backdate){const e=chkNotice(from,realTo,type,selOffice);if(e){setErr(e);return;}}
+    if(type==="Compensatory Leave"&&!backdate){const e=chkNotice(from,realTo,type,selOffice);if(e){setErr(e);return;}}
     onSubmit({leaveType:type,from,to:realTo,days:effDays,session:mode==="single"&&hasSession?session:"full",note,doctorNote:doc?.name||null,urgent});
     setDone(true);setTimeout(()=>onBack(),1800);
   };
@@ -178,9 +179,10 @@ function LeaveForm({selOffice,initialType,onSubmit,onBack}){
     <div style={{display:"flex",flexDirection:"column",gap:16}}>
       {!isSick&&<div><Lbl>Leave Type</Lbl><div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{LEAVE_TYPES.filter(t=>t!=="Sick Leave").map(t=><button key={t} onClick={()=>{setType(t);const mn2=urgent?today():addDays(today(),2);setFrom(mn2);setTo(mn2);setSession("full");}} style={{flex:"1 1 auto",padding:"9px 6px",borderRadius:8,fontSize:11,fontWeight:600,cursor:"pointer",border:`1px solid ${type===t?C.acc:C.bdr}`,background:type===t?C.acc:C.sur,color:type===t?"#fff":C.txt}}>{t}</button>)}</div></div>}
       {type==="Annual Leave"&&<div><Lbl>Urgency</Lbl><div style={{display:"flex",gap:6}}>{[["false","Standard"],["true","Urgent"]].map(([v,l])=><button key={v} onClick={toggleU} style={{flex:1,padding:"9px",borderRadius:8,fontSize:13,fontWeight:600,cursor:"pointer",border:`1px solid ${String(urgent)===v?C.acc:C.bdr}`,background:String(urgent)===v?C.acc:C.sur,color:String(urgent)===v?"#fff":C.txt}}>{l}</button>)}</div>{urgent&&<div style={{background:"#fffbeb",border:`1px solid #fde68a`,borderRadius:8,padding:"8px 12px",fontSize:12,color:C.warn,marginTop:8}}>Urgent leave bypasses notice rules. Note is mandatory.</div>}</div>}
+      <div><Lbl>Backdating</Lbl><div style={{display:"flex",gap:6}}>{[["false","No"],["true","Yes — I forgot to apply"]].map(([v,l])=><button key={v} onClick={()=>{setBackdate(v==="true");const mn2=v==="true"?null:urgent?today():addDays(today(),2);setFrom(mn2||today());setTo(mn2||today());}} style={{flex:1,padding:"9px",borderRadius:8,fontSize:13,fontWeight:600,cursor:"pointer",border:`1px solid ${String(backdate)===v?C.acc:C.bdr}`,background:String(backdate)===v?C.acc:C.sur,color:String(backdate)===v?"#fff":C.txt}}>{l}</button>)}</div></div>
       <div><Lbl>Duration</Lbl><div style={{display:"flex",gap:6}}>{[["single","Single Day"],["range","Date Range"]].map(([v,l])=><button key={v} onClick={()=>setModeX(v)} style={{flex:1,padding:"9px",borderRadius:8,fontSize:13,fontWeight:600,cursor:"pointer",border:`1px solid ${mode===v?C.acc:C.bdr}`,background:mode===v?C.acc:C.sur,color:mode===v?"#fff":C.txt}}>{l}</button>)}</div></div>
       {mode==="single"&&hasSession&&<div><Lbl>Session</Lbl><div style={{display:"flex",gap:6}}>{[["am","AM"],["pm","PM"],["full","Full Day"]].map(([v,l])=><button key={v} onClick={()=>setSession(v)} style={{flex:1,padding:"9px",borderRadius:8,fontSize:13,fontWeight:600,cursor:"pointer",border:`1px solid ${session===v?C.acc:C.bdr}`,background:session===v?C.acc:C.sur,color:session===v?"#fff":C.txt}}>{l}</button>)}</div></div>}
-      {mode==="single"?<div><Lbl>Date</Lbl><input type="date" value={from} min={mn} onChange={e=>setFrom(e.target.value)} style={inp}/>{hols[from]&&<div style={{background:"#f0fdf4",border:`1px solid #bbf7d0`,borderRadius:8,padding:"7px 12px",fontSize:12,color:C.ok,marginTop:6}}>{hols[from]} is a public holiday — won't count as leave.</div>}{!urgent&&!isSick&&<div style={{fontSize:11,color:C.muted,marginTop:5}}>Earliest: {fmt(mn)}</div>}</div>:<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}><div><Lbl>From</Lbl><input type="date" value={from} min={mn} onChange={e=>setFromX(e.target.value)} style={inp}/>{hols[from]&&<div style={{fontSize:11,color:C.ok,marginTop:4}}>{hols[from]}</div>}</div><div><Lbl>To</Lbl><input type="date" value={to} min={from} onChange={e=>setToX(e.target.value)} style={inp}/>{hols[to]&&<div style={{fontSize:11,color:C.ok,marginTop:4}}>{hols[to]}</div>}</div></div>}
+      {mode==="single"?<div><Lbl>Date</Lbl><input type="date" value={from} min={backdate?undefined:mn} onChange={e=>setFrom(e.target.value)} style={inp}/>{hols[from]&&<div style={{background:"#f0fdf4",border:`1px solid #bbf7d0`,borderRadius:8,padding:"7px 12px",fontSize:12,color:C.ok,marginTop:6}}>{hols[from]} is a public holiday — won't count as leave.</div>}{!urgent&&!isSick&&<div style={{fontSize:11,color:C.muted,marginTop:5}}>Earliest: {fmt(mn)}</div>}</div>:<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}><div><Lbl>From</Lbl><input type="date" value={from} min={backdate?undefined:mn} onChange={e=>setFromX(e.target.value)} style={inp}/>{hols[from]&&<div style={{fontSize:11,color:C.ok,marginTop:4}}>{hols[from]}</div>}</div><div><Lbl>To</Lbl><input type="date" value={to} min={from} onChange={e=>setToX(e.target.value)} style={inp}/>{hols[to]&&<div style={{fontSize:11,color:C.ok,marginTop:4}}>{hols[to]}</div>}</div></div>}
       {mode==="single"&&hasSession&&!hols[from]&&<div style={{fontSize:13,color:C.muted,fontWeight:500}}>Deducting <strong>{effDays}</strong> day{effDays!==1?"s":""} — {sessionLabel}</div>}
       {mode==="range"&&from&&to&&to>=from&&<div style={{fontSize:13,color:C.muted,fontWeight:500}}><strong>{effDays}</strong> working day{effDays!==1?"s":""} will be deducted <span style={{color:C.muted,fontSize:12}}>(weekends & holidays excluded)</span></div>}
       {type==="Annual Leave"&&!urgent&&<div style={{background:C.sub,borderRadius:8,padding:"10px 14px",fontSize:12,color:C.muted,lineHeight:1.6}}>Notice: 1–2 days → 48 hrs · 3+ days → 2 weeks</div>}
